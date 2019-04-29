@@ -23,6 +23,26 @@ def test_gen_string(faker):
     assert isinstance(output, str)
     assert len(output) == 10
 
+def test_gen_integer(faker):
+    limit_2bytes = (-32768, 32767)
+    limit_4bytes = (-2147483648, 2147483647)
+
+    output_2bytes = faker._gen_integer(2)
+    output_4bytes = faker._gen_integer(4)
+
+    assert isinstance(output_2bytes, int)
+    assert isinstance(output_4bytes, int)
+    assert (output_2bytes >= limit_2bytes[0]) and (output_2bytes <= limit_2bytes[1])
+    assert (output_4bytes >= limit_4bytes[0]) and (output_4bytes <= limit_4bytes[1])
+    
+def test_gen_boolean(faker):
+    output = faker._gen_boolean()
+    assert isinstance(output, bool)
+
+def test_gen_float(faker):
+    output = faker._gen_float()
+    assert isinstance(output, float)
+
 def test_string_generate_default_fake(faker):
     for ctype in type_compatible.ACCEPTED_STRING_DB_TYPES:
         output = faker._generate_default_fake(ctype)
