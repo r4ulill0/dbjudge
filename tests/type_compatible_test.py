@@ -19,7 +19,7 @@ def test_compatible_posgresql_integer():
 
 def test_compatible_posgresql_double():
     real = "real"
-    assert type_compatible.is_double(real)
+    assert type_compatible.is_float(real)
 
 def test_compatible_posgresql_interval():
     interval = "interval"
