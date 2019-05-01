@@ -1,6 +1,7 @@
 import random
 import string
 import datetime
+from psycopg2.extensions import IntervalFromPy
 from structures import Table, Column, Context
 import type_compatible
 
@@ -45,7 +46,11 @@ class Faker:
             fake = self._gen_datetime()
             formatted_fake = self._wrap_with_quote_marks(fake)
             return formatted_fake
-            
+
+        elif (type_compatible.is_interval(ctype)):
+            fake = self._gen_interval()
+            formatted_fake = self._format_interval(fake)
+            return formatted_fake
     
     def _gen_string(self):
         STRING_LEN = 10
@@ -81,11 +86,27 @@ class Faker:
         result = date.replace(hour=hour, minute=min,second=sec)
 
         return result
+    
+    def _gen_interval(self):
+        seconds_in_day = 3600*24
+        seconds = random.randint(0,seconds_in_day)
+        days = random.randint(-999999999,999999999)
+
+        result = datetime.timedelta(days=days, seconds=seconds)
+        
+        return result
 
     def _wrap_with_quote_marks(self, fake):
         envelope_particle = "\'"
         formatted_result = envelope_particle + str(fake) + envelope_particle
         return formatted_result  
     
+    def _format_interval(self, fake):
+        adapter = IntervalFromPy(fake)
+        binary_string = adapter.getquoted()
+        formatted_result = binary_string.decode("UTF-8")
+
+        return formatted_result
+
     def generate_fake(self, column):    
         return random.sample(self.column_data_pool[column.name],1)[0]

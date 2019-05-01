@@ -1,6 +1,5 @@
 import pytest
 import datetime
-
 import type_compatible
 from fake_data_gen import Faker
 from structures import Table, Column
@@ -17,6 +16,16 @@ def test_format_string_fake(faker):
     expected_output = "\'text\'"
 
     assert output == expected_output
+
+def test_format_interval(faker):
+    days = 23
+    seconds = 45
+    interval = datetime.timedelta(days=days, seconds=seconds)
+    
+    formatted_output = faker._format_interval(interval)
+    expected_output = "'23 days 45.000000 seconds'::interval"
+
+    assert formatted_output == expected_output
 
 def test_gen_string(faker):
     output = faker._gen_string()
@@ -48,6 +57,11 @@ def test_gen_datetime(faker):
     output = faker._gen_datetime()
 
     assert isinstance(output, datetime.datetime)
+
+def test_gen_interval(faker):
+    output = faker._gen_interval()
+    
+    assert isinstance(output, datetime.timedelta)
 
 def test_string_generate_default_fake(faker):
     for ctype in type_compatible.ACCEPTED_STRING_DB_TYPES:
