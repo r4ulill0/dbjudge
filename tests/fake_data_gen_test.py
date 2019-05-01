@@ -1,4 +1,5 @@
 import pytest
+import datetime
 
 import type_compatible
 from fake_data_gen import Faker
@@ -12,7 +13,7 @@ def faker():
 
 def test_format_string_fake(faker):
     input = "text"
-    output = faker._format_string_fake(input)
+    output = faker._wrap_with_quote_marks(input)
     expected_output = "\'text\'"
 
     assert output == expected_output
@@ -42,6 +43,11 @@ def test_gen_boolean(faker):
 def test_gen_float(faker):
     output = faker._gen_float()
     assert isinstance(output, float)
+
+def test_gen_datetime(faker):
+    output = faker._gen_datetime()
+
+    assert isinstance(output, datetime.datetime)
 
 def test_string_generate_default_fake(faker):
     for ctype in type_compatible.ACCEPTED_STRING_DB_TYPES:
