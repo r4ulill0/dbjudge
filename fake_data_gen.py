@@ -3,23 +3,36 @@ import string
 import datetime
 from psycopg2.extensions import IntervalFromPy
 from structures import Table, Column, Context
+import exceptions
 import type_compatible
 
 class Faker:
-    def __init__(self, table):
+    def __init__(self, table, context):
+        if table not in context.tables:
+            raise exceptions.TableNotInContext('Table {0} not in context',table.name)
+        
+        self._context = context
         self.column_data_pool = {}
-        for column in table.columns:
+        for key, column in table.columns.items():
             self.column_data_pool[column.name] = self._generate_data_pool(column, table.fake_data_size)
     
     def _generate_data_pool(self, column, size):
         pool = set()
-        if (column.fake_type == 'default'):
+        
+        if (len(column.reference)!= 0 and column.reference[0] != None):
+            pool = self._fetch_foreing_key_pool(column.reference[0])
+            
+        elif (column.fake_type == 'default'):
             # while (len(pool)!= size):
             for _ in range(size):
                 pool.add(self._generate_default_fake(column.ctype))
         return pool
 
-    
+    def _fetch_foreing_key_pool(self, reference):
+        column = self._context.resolve_column_reference(reference)
+        pool = column.instances_pool
+        return pool
+
     def _generate_default_fake(self, ctype):
         if (type_compatible.is_string(ctype)):
             fake = self._gen_string()

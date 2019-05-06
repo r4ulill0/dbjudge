@@ -2,13 +2,41 @@ import pytest
 import datetime
 import type_compatible
 from fake_data_gen import Faker
-from structures import Table, Column
+from structures import Context, Table, Column
+import exceptions
 
 @pytest.fixture
 def faker():
     table = Table("somename","pk")
-    faker = Faker(table)
+    context = Context()
+    context.add_table(table)
+    faker = Faker(table, context)
     return faker
+
+@pytest.fixture
+def references_faker(faker, instances_pool):
+    referenced_table = Table("target", "id")
+    referenced_column = Column("id","integer")
+    referenced_table.add_column(referenced_column)
+
+    referenced_column.instances_pool = instances_pool
+    
+    table = Table("main","id")
+    pk = Column("id","character")
+    foreing_key = Column("pointer","integer")
+    foreing_key.add_reference(('target','id'))
+    table.add_column(pk)
+    table.add_column(foreing_key)
+
+    faker._context.add_table(referenced_table)
+    faker._context.add_table(table)
+
+    return faker
+
+@pytest.fixture
+def instances_pool():
+    instances_pool = set([0,2,3,4,5,342])
+    return instances_pool
 
 def test_format_string_fake(faker):
     input = "text"
@@ -63,17 +91,40 @@ def test_gen_interval(faker):
     
     assert isinstance(output, datetime.timedelta)
 
-def test_string_generate_default_fake(faker):
-    for ctype in type_compatible.ACCEPTED_STRING_DB_TYPES:
-        output = faker._generate_default_fake(ctype)
-        assert isinstance(output, str)
+def test_generate_default_fake(faker):
+    supported_types = (type_compatible.ACCEPTED_STRING_DB_TYPES,
+        type_compatible.ACCEPTED_INTEGER_DB_TYPES,
+        type_compatible.ACCEPTED_BOOLEAN_DB_TYPES,
+        type_compatible.ACCEPTED_FLOAT_DB_TYPES,
+        type_compatible.ACCEPTED_DATE_DB_TYPES,
+        type_compatible.ACCEPTED_INTERVAL_DB_TYPES)
 
-def test_generate_data_pool(faker):
+    for supp_type in supported_types:
+        for ctype in supp_type:
+            output = faker._generate_default_fake(ctype)
+            assert isinstance(output, str)
+
+def test_default_generate_data_pool(faker):
     column = Column("column",'character varying')
     size = 1000
     pool = faker._generate_data_pool(column,size)
 
     assert len(pool) == size
+
+def test_fetch_foreing_key_pool(references_faker, instances_pool):
+    foreing_key = references_faker._context.tables[2].columns['pointer']
+    reference = foreing_key.reference[0]
+
+    output = references_faker._fetch_foreing_key_pool(reference)
+
+    assert output == instances_pool
+
+def test_with_references_generate_data_pool(references_faker, instances_pool):
+    foreing_key = references_faker._context.tables[2].columns['pointer']
+    output = references_faker._generate_data_pool(foreing_key, 100)
+
+    assert output == instances_pool
+
 
 def test_init():
     table = Table("person","id")
@@ -81,12 +132,28 @@ def test_init():
     col_name = Column("name", "character varying")
     table.add_column(col_id)
     table.add_column(col_name)
+    context = Context()
+    context.add_table(table)
 
-    faker = Faker(table)
+    faker = Faker(table, context)
 
     assert len(faker.column_data_pool) == 2
     assert len(faker.column_data_pool["id"]) == 100
     assert len(faker.column_data_pool["name"]) == 100
+    assert faker._context == context
+    assert table in faker._context.tables
+
+def test_init_with_table_not_in_context():
+    table = Table("person", "id")
+    col_id = Column("id", "character varying")
+    col_name = Column("name", "character varying")
+    table.add_column(col_id)
+    table.add_column(col_name)
+    context = Context()
+    
+    with pytest.raises(exceptions.TableNotInContext):
+        faker = Faker(table, context)
+    
 
 def test_generate_fake(faker):
     expected_output = "surprise"
@@ -99,3 +166,4 @@ def test_generate_fake(faker):
     output = faker.generate_fake(column)
 
     assert output == expected_output
+
