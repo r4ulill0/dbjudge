@@ -54,7 +54,7 @@ def _load_table_columns(table, database_cursor):
 
 def _load_columns_references(context, database_cursor):
 	for table in context.tables:
-		for column in table.columns:
+		for key, column in table.columns.items():
 			database_cursor.execute(REFERENCE_QUERY,(table.name,column.name))
 			refq = database_cursor.fetchall()
 			reference = None

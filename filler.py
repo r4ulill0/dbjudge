@@ -7,40 +7,47 @@ def generate_fake_data(context, db_connection):
     db_cursor = db_connection.cursor()
 
     for table in context.tables:
-        _fill_table(table, db_cursor)
+        faker = fake_data_gen.Faker(table, context)
+        _fill_table(table, faker, db_cursor)
 
     db_cursor.close()
 
 
-def _fill_table(table, db_cursor):
-    insert_query = "INSERT INTO {0} ({1}) VALUES ({2});"
+def _fill_table(table, faker, db_cursor):
+    query_template = "INSERT INTO {0} ({1}) VALUES ({2});"
 
     columns_names_list = format_columns_names(table.columns)
-    faker = fake_data_gen.Faker(table)
 
     for _ in range(table.fake_data_size):
-        values_list = generate_formatted_fake_values(table.columns, faker)
-
-        print(insert_query.format(table.name,columns_names_list, values_list))
-        #db_cursor.execute(insert_query,(table.name,columns_names_list, values_list))
+        values_list = generate_fake_values(table.columns, faker)
+        formatted_values_list = format_fake_values(values_list)
+        table.update_instances_pools(values_list)
+        insert_query = query_template.format(table.name,columns_names_list, formatted_values_list)
+        print(insert_query)
+        db_cursor.execute(insert_query)
 
 def format_columns_names(columns):
     result = ""
-    for idx, column in enumerate(columns):
+    for idx, key in enumerate(columns):
+        name = columns[key].name
         if (idx == 0):
-            result += column.name
+            result += name
         else:
-            result += ", "+column.name
+            result += ", " + name
     
     return result
 
-def generate_formatted_fake_values(columns, faker):
-    values = ""
-    for idx, column in enumerate(columns):
-        value = str(faker.generate_fake(column))
-        if (idx == 0):
-            values += value
-        else:
-            values += ","+value
-    
+def generate_fake_values(columns, faker):
+    values = []
+    for key, column in columns.items():
+        values.append(faker.generate_fake(column))
     return values
+
+def format_fake_values(values):
+    formatted_values = []
+    for value in values:
+        formatted_values.append(str(value))
+
+    formatted_result = ','.join(formatted_values)
+
+    return formatted_result

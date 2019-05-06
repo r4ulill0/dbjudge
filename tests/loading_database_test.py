@@ -24,18 +24,18 @@ def test_load_table_columns(database_cursor):
     squemaGetter._load_table_columns(table, database_cursor)
 
     column = table.columns
-    assert column[0].name == 'userid'
-    assert column[0].ctype == 'integer'
-    assert column[1].name == 'nombre'
-    assert column[1].ctype == 'character varying'
-    assert column[2].name == 'dni'
-    assert column[2].ctype == 'character varying'
-    assert column[3].name == 'nacimiento'
-    assert column[3].ctype == 'date'
-    assert column[4].name == 'suspension'
-    assert column[4].ctype == 'boolean'
-    assert column[5].name == 'genero'
-    assert column[5].ctype == 'character varying'
+    assert column['userid'].name == 'userid'
+    assert column['userid'].ctype == 'integer'
+    assert column['nombre'].name == 'nombre'
+    assert column['nombre'].ctype == 'character varying'
+    assert column['dni'].name == 'dni'
+    assert column['dni'].ctype == 'character varying'
+    assert column['nacimiento'].name == 'nacimiento'
+    assert column['nacimiento'].ctype == 'date'
+    assert column['suspension'].name == 'suspension'
+    assert column['suspension'].ctype == 'boolean'
+    assert column['genero'].name == 'genero'
+    assert column['genero'].ctype == 'character varying'
 
 def test_load_columns_references(database_cursor):
     context = Context()
@@ -46,13 +46,13 @@ def test_load_columns_references(database_cursor):
     squemaGetter._load_columns_references(context, database_cursor)
 
     referencing_table = context.tables[2]
-    referencing_column_1 = referencing_table.columns[3]
-    referencing_column_2 = referencing_table.columns[4]
-    referencing_column_3 = referencing_table.columns[5]
+    referencing_column_1 = referencing_table.columns['titulo']
+    referencing_column_2 = referencing_table.columns['autor']
+    referencing_column_3 = referencing_table.columns['persona']
 
-    assert referencing_column_1.table_reference[0] == ('libro','titulo')
-    assert referencing_column_2.table_reference[0] == ('libro','autor')
-    assert referencing_column_3.table_reference[0] == ('persona','userid')
+    assert referencing_column_1.reference[0] == ('libro','titulo')
+    assert referencing_column_2.reference[0] == ('libro','autor')
+    assert referencing_column_3.reference[0] == ('persona','userid')
 
 def test_format_primary_key():
     simulated_query_response = [('data_1',),('data_2',)]
