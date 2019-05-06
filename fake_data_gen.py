@@ -25,7 +25,11 @@ class Faker:
         elif (column.fake_type == 'default'):
             # while (len(pool)!= size):
             for _ in range(size):
-                pool.add(self._generate_default_fake(column.ctype))
+                pool.add(self._generate_default_fake(column))
+        
+        if (column.nullable):
+            pool.add('NULL')
+
         return pool
 
     def _fetch_foreing_key_pool(self, reference):
@@ -33,42 +37,43 @@ class Faker:
         pool = column.instances_pool
         return pool
 
-    def _generate_default_fake(self, ctype):
-        if (type_compatible.is_string(ctype)):
-            fake = self._gen_string()
+    def _generate_default_fake(self, column):
+        if (type_compatible.is_string(column.ctype)):
+            fake = self._gen_string(column.max_char_len)
             formatted_fake = self._wrap_with_quote_marks(fake)
             return formatted_fake
         
-        elif (type_compatible.is_integer(ctype)):
-            bytes_limit = type_compatible.bytes_limit(ctype)
+        elif (type_compatible.is_integer(column.ctype)):
+            bytes_limit = type_compatible.bytes_limit(column.ctype)
             fake = self._gen_integer(bytes_limit)
             formatted_fake = str(fake)
             return formatted_fake
 
-        elif (type_compatible.is_boolean(ctype)):
+        elif (type_compatible.is_boolean(column.ctype)):
             fake = self._gen_boolean()
             formatted_fake = str(fake)
             return formatted_fake
         
-        elif (type_compatible.is_float(ctype)):
+        elif (type_compatible.is_float(column.ctype)):
             fake = self._gen_float()
             formatted_fake = str(fake)
             return formatted_fake
 
-        elif(type_compatible.is_date(ctype)):
+        elif(type_compatible.is_date(column.ctype)):
             fake = self._gen_datetime()
             formatted_fake = self._wrap_with_quote_marks(fake)
             return formatted_fake
 
-        elif (type_compatible.is_interval(ctype)):
+        elif (type_compatible.is_interval(column.ctype)):
             fake = self._gen_interval()
             formatted_fake = self._format_interval(fake)
             return formatted_fake
     
-    def _gen_string(self):
-        STRING_LEN = 10
+    def _gen_string(self, max_len):
+        max_string_len = max_len if max_len != None else 10
         result = ""
-        for _ in range(STRING_LEN):
+        string_len = random.randint(1,max_string_len)
+        for _ in range(string_len):
             result += random.choice(string.ascii_letters)
         return result
     

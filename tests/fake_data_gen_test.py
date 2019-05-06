@@ -56,10 +56,15 @@ def test_format_interval(faker):
     assert formatted_output == expected_output
 
 def test_gen_string(faker):
-    output = faker._gen_string()
+    output = faker._gen_string(None)
+    output2 = faker._gen_string(23)
 
     assert isinstance(output, str)
-    assert len(output) == 10
+    assert isinstance(output2, str)
+    assert len(output) <= 10
+    assert len(output) > 0
+    assert len(output2) <= 23
+    assert len(output2) > 0
 
 def test_gen_integer(faker):
     limit_2bytes = (-32768, 32767)
@@ -101,7 +106,8 @@ def test_generate_default_fake(faker):
 
     for supp_type in supported_types:
         for ctype in supp_type:
-            output = faker._generate_default_fake(ctype)
+            column = Column("temp", ctype)
+            output = faker._generate_default_fake(column)
             assert isinstance(output, str)
 
 def test_default_generate_data_pool(faker):
