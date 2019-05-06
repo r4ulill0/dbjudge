@@ -1,11 +1,13 @@
 import exceptions
 
 class Column:
-    def __init__(self, name, ctype):
+    def __init__(self, name, ctype, nullable=False):
         self.name = name
         self.ctype = ctype
         self.constraint = ""
         self.reference = []
+        self.nullable = nullable
+        self.max_char_len = None
         self.fake_type = "default"
         self.instances_pool = set()
 
