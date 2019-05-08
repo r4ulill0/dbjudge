@@ -7,7 +7,7 @@ COLUMN_TYPE_QUERY = "select C.column_name, C.data_type, C.is_nullable, C.charact
 CONSTRAINT_QUERY ="select TC.constraint_name, TC.constraint_type from information_schema.table_constraints TC where TC.table_name=%s"
 REFERENCE_QUERY = "select KCUf.constraint_name, KCUf.table_name, KCUf.column_name, '**references**', KCUp.table_name, KCUp.column_name, KCUp.ordinal_position from information_schema.table_constraints TC, information_schema.key_column_usage KCUf, information_schema.key_column_usage KCUp, information_schema.referential_constraints RC where RC.constraint_name=KCUf.constraint_name and RC.unique_constraint_name=KCUp.constraint_name   and TC.constraint_type='FOREIGN KEY' and TC.constraint_name=KCUf.constraint_name   and KCUf.ordinal_position = KCUp.ordinal_position and KCUf.table_name=%s and KCUf.column_name=%s"
 PRIMARY_KEY_QUERY = "select KCU.column_name from information_schema.key_column_usage KCU, information_schema.table_constraints TC where TC.constraint_type='PRIMARY KEY' and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s"
-
+UNIQUE_KEY_QUERY = "select distinct KCU.column_name from information_schema.key_column_usage KCU, information_schema.table_constraints TC where (TC.constraint_type='UNIQUE' or TC.constraint_type='PRIMARY KEY') and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s"
 
 def create_context(conn):
     
@@ -45,13 +45,16 @@ def _format_primary_key(raw_query_response):
 def _load_table_columns(table, database_cursor):
     database_cursor.execute(COLUMN_TYPE_QUERY,(table.name,))
     columns_types = database_cursor.fetchall()
+    database_cursor.execute(UNIQUE_KEY_QUERY,(table.name,))
+    uniques = set(database_cursor.fetchall()[0])
+    
     for column_and_type in columns_types:
         column_name = column_and_type[0]
         column_type = column_and_type[1]
         column_nullable = column_and_type[2] is 'yes'
         column_char_len = column_and_type[3]
-        
-        new_column = Column(column_name,column_type,column_nullable)
+        column_unique = column_name in uniques
+        new_column = Column(column_name,column_type,column_nullable, column_unique)
         
         if (column_char_len != 'NULL'):
             new_column.max_char_len = column_char_len

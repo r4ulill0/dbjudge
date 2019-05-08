@@ -7,14 +7,15 @@ import exceptions
 import type_compatible
 
 class Faker:
-    def __init__(self, table, context):
+    def __init__(self, table, context, pool_size=100):
         if table not in context.tables:
             raise exceptions.TableNotInContext('Table {0} not in context',table.name)
         
         self._context = context
         self.column_data_pool = {}
         for key, column in table.columns.items():
-            self.column_data_pool[column.name] = self._generate_data_pool(column, table.fake_data_size)
+            self.column_data_pool[column.name] = set()
+            self.column_data_pool[column.name] = self._generate_data_pool(column, pool_size)
     
     def _generate_data_pool(self, column, size):
         pool = set()
@@ -23,7 +24,7 @@ class Faker:
             pool = self._fetch_foreing_key_pool(column.reference[0])
             
         elif (column.fake_type == 'default'):
-            # while (len(pool)!= size):
+            #while (not self._is_pool_big_enough(len(pool),size,column)):
             for _ in range(size):
                 pool.add(self._generate_default_fake(column))
         
@@ -36,6 +37,12 @@ class Faker:
         column = self._context.resolve_column_reference(reference)
         pool = column.instances_pool
         return pool
+
+    def _is_pool_big_enough(self, actual_size, target_size, column):
+        response = (actual_size >= target_size
+            or (type_compatible.is_boolean(column.ctype) and actual_size >= 2)
+            )
+        return response
 
     def _generate_default_fake(self, column):
         if (type_compatible.is_string(column.ctype)):
@@ -126,5 +133,20 @@ class Faker:
 
         return formatted_result
 
-    def generate_fake(self, column):    
-        return random.sample(self.column_data_pool[column.name],1)[0]
+    def generate_fake(self, column):
+        fake = random.sample(self.column_data_pool[column.name],1)[0]
+        if (column.unique and not self._has_pool_uniques(column)):
+            actual_size = len(self.column_data_pool[column.name])
+            self._generate_data_pool(column, actual_size)
+        if (column.unique):
+            while (fake in column.instances_pool):
+                fake = random.sample(self.column_data_pool[column.name],1)[0]
+
+        return fake
+
+    def _has_pool_uniques(self, column):
+        faker_pool = self.column_data_pool[column.name]
+        instances_pool = column.instances_pool
+        diff = faker_pool.intersection(instances_pool)
+
+        return (len(diff) != 0)

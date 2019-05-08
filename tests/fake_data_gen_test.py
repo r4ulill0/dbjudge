@@ -117,6 +117,30 @@ def test_default_generate_data_pool(faker):
 
     assert len(pool) == size
 
+def test_is_pool_big_enough(faker):
+    bool_column = Column('bool','boolean')
+    int_column = Column('int', 'integer')
+
+    full_boolean_pool = faker._is_pool_big_enough(2, 100, bool_column)
+    overfilled_boolean_pool = faker._is_pool_big_enough(3, 100, bool_column)
+    underfilled_boolean_pool = faker._is_pool_big_enough(1, 100, bool_column)
+    empty_boolean_pool = faker._is_pool_big_enough(0, 100, bool_column)
+
+    full_pool = faker._is_pool_big_enough(100, 100, int_column)
+    overfilled_pool = faker._is_pool_big_enough(101, 100, int_column)
+    underfilled_pool = faker._is_pool_big_enough(99, 100, int_column)
+    empty_pool = faker._is_pool_big_enough(0, 100, int_column)
+
+    assert full_boolean_pool == True, 'full boolean pool is not enough'
+    assert overfilled_boolean_pool == True, 'overfilled boolean pool is not enough'
+    assert underfilled_boolean_pool == False, 'underfilled boolean pool is enough'
+    assert empty_boolean_pool == False, 'empty boolean pool is enough'
+    assert full_pool == True, 'full pool is not enough'
+    assert overfilled_pool == True, 'overfilled pool is not enough'
+    assert underfilled_pool == False, 'underfilled pool is enough'
+    assert empty_pool == False, 'empty pool is enough'
+
+
 def test_fetch_foreing_key_pool(references_faker, instances_pool):
     foreing_key = references_faker._context.tables[2].columns['pointer']
     reference = foreing_key.reference[0]
