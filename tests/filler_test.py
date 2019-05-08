@@ -14,7 +14,7 @@ def test_generate_fake_values():
     output = filler.generate_fake_values(table.columns, faker)
 
     for value in output:
-        assert isinstance(value, str)
+        assert isinstance(value, str), "non string value: {0} detected".format(value)
 
 def test_format_fake_values():
     date = "'4286-03-08 13:39:16'"
