@@ -40,8 +40,7 @@ def _format_primary_key(raw_query_response):
 def _load_table_columns(table, database_cursor):
     database_cursor.execute(queries.COLUMN_TYPE_QUERY,(table.name,))
     columns_types = database_cursor.fetchall()
-    database_cursor.execute(queries.UNIQUE_KEY_QUERY,(table.name,))
-    uniques = set(database_cursor.fetchall()[0])
+    uniques = _load_table_uniques(table, database_cursor)
     
     for column_and_type in columns_types:
         column_name = column_and_type[0]
@@ -56,6 +55,14 @@ def _load_table_columns(table, database_cursor):
 
         table.add_column(new_column)
 
+def _load_table_uniques(table, database_cursor):
+    database_cursor.execute(queries.UNIQUE_KEY_QUERY,(table.name,))
+    query_result =database_cursor.fetchall() 
+    uniques = set()
+    for result in query_result:
+        uniques.add(result[0])
+    
+    return uniques
 
 def _load_columns_references(context, database_cursor):
     for table in context.tables:
