@@ -1,6 +1,6 @@
 import os
 import psycopg2
-from structures import Table, Column, Context
+from structures import Table, Column, Context, Reference, ForeignKey
 import queries
 
 
@@ -65,13 +65,29 @@ def _load_table_uniques(table, database_cursor):
     return uniques
 
 def _load_columns_references(context, database_cursor):
+    
     for table in context.tables:
-        for key, column in table.columns.items():
-            database_cursor.execute(queries.REFERENCE_QUERY,(table.name,column.name))
-            refq = database_cursor.fetchall()
-            reference = None
-            if (len(refq) == 1):
-                target_table = refq[0][4]
-                target_column = refq[0][5]
-                reference = (target_table,target_column)
-            column.add_reference(reference)
+        database_cursor.execute(queries.REFERENCE_QUERY,(table.name,))
+        references = database_cursor.fetchall()
+        if (len(references)==0):
+            continue
+
+        last_key = ''
+        for reference in references:
+            key = reference[0]
+            source_table_name = reference[1]
+            source_column_name = reference[2]
+            target_table_name = reference[4]
+            target_column_name = reference[5]
+            
+            source_table = context.get_table_by_name(source_table_name)
+            target_table = context.get_table_by_name(target_table_name)
+
+            if(key != last_key):
+                foreign_key = ForeignKey(source_table, target_table)
+                table.foreign_keys.append(foreign_key)
+
+            reference = Reference(source_column_name, target_column_name)
+            foreign_key.add_column_reference(reference)
+
+            last_key = key

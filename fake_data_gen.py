@@ -24,8 +24,8 @@ class Faker:
             pool = self._fetch_foreing_key_pool(column.reference[0])
             
         elif (column.fake_type == 'default'):
-            #while (not self._is_pool_big_enough(len(pool),size,column)):
-            for _ in range(size):
+            while (not self._is_pool_big_enough(len(pool),size,column)):
+            #for _ in range(size):
                 pool.add(self._generate_default_fake(column))
         
         if (column.nullable):
@@ -41,6 +41,9 @@ class Faker:
     def _is_pool_big_enough(self, actual_size, target_size, column):
         response = (actual_size >= target_size
             or (type_compatible.is_boolean(column.ctype) and actual_size >= 2)
+            or (type_compatible.is_string(column.ctype) 
+                and column.max_char_len != None
+                and actual_size >= len(string.ascii_letters)*column.max_char_len)
             )
         return response
 
@@ -133,20 +136,79 @@ class Faker:
 
         return formatted_result
 
-    def generate_fake(self, column):
-        fake = random.sample(self.column_data_pool[column.name],1)[0]
-        if (column.unique and not self._has_pool_uniques(column)):
-            actual_size = len(self.column_data_pool[column.name])
-            self._generate_data_pool(column, actual_size)
-        if (column.unique):
-            while (fake in column.instances_pool):
+    def generate_fake(self, table):
+
+        values_dict = {}
+        while (not self._valid_primary_key(table, values_dict)):
+            values_dict = {}
+
+            if (len(table.foreign_keys) != 0):
+                for foreign_key in table.foreign_keys:
+                    row_instance = random.choice(foreign_key.target_table.row_instances)
+                    
+                    for reference in foreign_key.get_column_references():
+                        values_dict[reference.source] = row_instance[reference.target]
+
+            for key, column in table.columns.items():
+                if (column.name in values_dict.keys()):
+                    continue
+
                 fake = random.sample(self.column_data_pool[column.name],1)[0]
+                if (column.unique and not self._has_pool_uniques(table, column)):
+                    actual_size = len(self.column_data_pool[column.name])
+                    self._generate_data_pool(column, actual_size)
+                if (column.unique):
+                    #TODO comprobar que el fake esté en alguna parte de las instancias de la tabla
+                    while (self._exists_in_instance(fake, table, column)):
+                        fake = random.sample(self.column_data_pool[column.name],1)[0]
+                values_dict[column.name] = fake
 
-        return fake
 
-    def _has_pool_uniques(self, column):
+        values = self._list_values(values_dict, table)
+        table.row_instances.append(values_dict)
+
+        return values
+
+    def _valid_primary_key(self, table, values:dict):
+        pk_column_names = table.primary_key
+        is_correct_pk = True
+        is_value_filled = len(table.columns) == len(values.keys())
+        
+        if(not is_value_filled):
+            return is_value_filled
+
+        for instance in table.row_instances:
+            for c_name in pk_column_names:
+                is_correct_pk = not (values[c_name] == instance[c_name])
+                
+                if(not is_correct_pk):
+                    return is_correct_pk
+
+        return is_correct_pk
+
+    def _has_pool_uniques(self, table, column):
         faker_pool = self.column_data_pool[column.name]
-        instances_pool = column.instances_pool
+        instances_pool = set()
+        for instance in table.row_instances:
+            instances_pool.add(instance[column.name])
         diff = faker_pool.intersection(instances_pool)
 
-        return (len(diff) != 0)
+        condition = len(table.row_instances) == 0 or len(diff) != 0 
+        return condition
+
+    def _exists_in_instance(self, fake, table, column):
+        exists = False
+        
+        for instance in table.row_instances:
+            if (instance[column.name] == fake):
+                exists = True
+                break
+
+        return exists
+
+    def _list_values(self, dictionary, table):
+        ordered_list = []
+        for column_name in table.columns.keys():
+            ordered_list.append(dictionary[column_name])
+         
+        return ordered_list

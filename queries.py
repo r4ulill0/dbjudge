@@ -63,8 +63,7 @@ REFERENCE_QUERY = '''
     where RC.constraint_name=KCUf.constraint_name 
         and RC.unique_constraint_name=KCUp.constraint_name   
         and TC.constraint_type='FOREIGN KEY' and TC.constraint_name=KCUf.constraint_name   
-        and KCUf.ordinal_position = KCUp.ordinal_position and KCUf.table_name=%s 
-        and KCUf.column_name=%s
+        and KCUf.ordinal_position = KCUp.ordinal_position and KCUf.table_name=%s
     '''
 
 PRIMARY_KEY_QUERY = '''

@@ -19,9 +19,9 @@ def _fill_table(table, faker, db_cursor):
     columns_names_list = format_columns_names(table.columns)
 
     for _ in range(table.fake_data_size):
-        values_list = generate_fake_values(table.columns, faker)
+        values_list = faker.generate_fake(table)
         formatted_values_list = format_fake_values(values_list)
-        table.update_instances_pools(values_list)
+        
         insert_query = query_template.format(table.name,columns_names_list, formatted_values_list)
         print(insert_query)
         db_cursor.execute(insert_query)
@@ -36,12 +36,6 @@ def format_columns_names(columns):
             result += ", " + name
     
     return result
-
-def generate_fake_values(columns, faker):
-    values = []
-    for key, column in columns.items():
-        values.append(faker.generate_fake(column))
-    return values
 
 def format_fake_values(values):
     formatted_values = []
