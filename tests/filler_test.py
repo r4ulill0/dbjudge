@@ -1,21 +1,18 @@
 import pytest
+import conftest
 import filler
 from structures import Context, Table, Column
 from fake_data_gen import Faker
 import datetime
-def test_generate_fake_values():
-    table = Table("person","name")
-    col= Column("name", "character varying")
-    table.add_column(col)
+
+def test_generate_fake_data(database_connection):
+    
     context = Context()
-    context.add_table(table)
-    faker = Faker(table,context)
+    
+    filler.generate_fake_data(context, database_connection)
 
-    output = filler.generate_fake_values(table.columns, faker)
 
-    for value in output:
-        assert isinstance(value, str), "non string value: {0} detected".format(value)
-
+    
 def test_format_fake_values():
     date = "'4286-03-08 13:39:16'"
     test_values = ['str',25,date,False]

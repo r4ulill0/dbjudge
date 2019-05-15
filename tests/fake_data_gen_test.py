@@ -6,8 +6,12 @@ from structures import Context, Table, Column
 import exceptions
 
 @pytest.fixture
-def faker():
+def table():
     table = Table("somename","pk")
+    return table
+
+@pytest.fixture
+def faker(table):
     context = Context()
     context.add_table(table)
     faker = Faker(table, context)
@@ -185,15 +189,16 @@ def test_init_with_table_not_in_context():
         faker = Faker(table, context)
     
 
-def test_generate_fake(faker):
-    expected_output = "surprise"
+def test_generate_fake(faker, table):
+    expected_output = ["surprise"]
     
     pool = set()
-    pool.add(expected_output)
-    column = Column("somename","character varying")
+    pool.add(expected_output[0])
+    column = Column("pk","character varying")
+    table.add_column(column)
     faker.column_data_pool[column.name] = pool
 
-    output = faker.generate_fake(column)
+    output = faker.generate_fake(table)
 
     assert output == expected_output
 

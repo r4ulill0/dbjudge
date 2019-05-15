@@ -11,10 +11,6 @@ def test_load_tables(database_cursor):
     table = context.tables
 
     assert len(context.tables) == 3
-    assert 'persona' in table[0].name
-    assert ('userid',) == table[0].primary_key
-    assert 'libro' in table[1].name
-    assert ('titulo', 'autor') == table[1].primary_key
     assert 'prestamo' in table[2].name
     assert ('titulo', 'autor', 'persona') == table[2].primary_key
 
@@ -46,13 +42,22 @@ def test_load_columns_references(database_cursor):
     squemaGetter._load_columns_references(context, database_cursor)
 
     referencing_table = context.tables[2]
-    referencing_column_1 = referencing_table.columns['titulo']
-    referencing_column_2 = referencing_table.columns['autor']
-    referencing_column_3 = referencing_table.columns['persona']
 
-    assert referencing_column_1.reference[0] == ('libro','titulo')
-    assert referencing_column_2.reference[0] == ('libro','autor')
-    assert referencing_column_3.reference[0] == ('persona','userid')
+    persona_reference = referencing_table.foreign_keys[0].get_column_references()[0]
+    titulo_reference = referencing_table.foreign_keys[1].get_column_references()[0]
+    autor_reference = referencing_table.foreign_keys[1].get_column_references()[1]
+    
+    assert referencing_table.foreign_keys[0].source_table.name == 'prestamo'
+    assert referencing_table.foreign_keys[0].target_table.name == 'persona'
+    assert persona_reference.source == 'persona'
+    assert persona_reference.target == 'userid'
+
+    assert referencing_table.foreign_keys[1].source_table.name == 'prestamo'
+    assert referencing_table.foreign_keys[1].target_table.name == 'libro'
+    assert titulo_reference.source == 'titulo'
+    assert titulo_reference.target == 'titulo'
+    assert autor_reference.source == 'autor'
+    assert autor_reference.target == 'autor'
 
 def test_format_primary_key():
     simulated_query_response = [('data_1',),('data_2',)]
