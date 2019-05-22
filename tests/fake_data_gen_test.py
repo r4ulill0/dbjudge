@@ -42,7 +42,7 @@ def instances_pool():
     instances_pool = set([0,2,3,4,5,342])
     return instances_pool
 
-def test_format_string_fake(faker):
+def test_wrap_with_quote_marks(faker):
     input = "text"
     output = faker._wrap_with_quote_marks(input)
     expected_output = "\'text\'"
@@ -202,3 +202,89 @@ def test_generate_fake(faker, table):
 
     assert output == expected_output
 
+def test_valid_primary_key(faker, table):
+    pk_column_1 = Column('first_pk', 'integer')
+    pk_column_2 = Column('second_pk', 'character')
+    table.columns = [pk_column_1, pk_column_2]
+
+    table.primary_key=('first_pk', 'second_pk')
+
+    row_insert_1 = {'first_pk':1, 'second_pk':'a'}
+    row_insert_2 = {'first_pk':5, 'second_pk':'b'}
+    table.row_instances.append(row_insert_1)
+
+
+
+    assert not faker._valid_primary_key(table, row_insert_1)
+    assert faker._valid_primary_key(table, row_insert_2)
+
+def test_has_pool_uniques(faker, table):
+    column_case_1 = Column('A', 'integer',unique=True)
+    column_case_2 = Column('B', 'character',unique=True)
+    column_case_3 = Column('C', 'integer',unique=True)
+    column_case_4 = Column('D', 'character varying', unique=True)
+    
+    pool_case_1 = set((0,-2,9))
+    pool_case_2 = set(('3','i','k'))
+    pool_case_3 = set((-129,0,2))
+    pool_case_4 = set()
+
+    faker.column_data_pool[column_case_1.name] = pool_case_1
+    faker.column_data_pool[column_case_2.name] = pool_case_2
+    faker.column_data_pool[column_case_3.name] = pool_case_3
+    faker.column_data_pool[column_case_4.name] = pool_case_4
+
+    instance_case_1 = {'A':0, 'B':'3', 'C':9, 'D':'some'}
+    instance_case_2 = {'A':-2, 'B':'i', 'C':99, 'D':'someth'}
+    instance_case_3 = {'A':9, 'B':'k', 'C':999, 'D':'something'}
+
+    table.row_instances.append(instance_case_1)
+    table.row_instances.append(instance_case_2)
+    table.row_instances.append(instance_case_3)
+
+    table.add_column(column_case_1)
+    table.add_column(column_case_2)
+    table.add_column(column_case_3)
+    table.add_column(column_case_4)
+
+
+    assert faker._has_pool_uniques(table, column_case_1)
+    assert faker._has_pool_uniques(table, column_case_2)
+    assert not faker._has_pool_uniques(table, column_case_3)
+    assert not faker._has_pool_uniques(table, column_case_4)
+
+def test_exists_in_instance(faker, table):
+    column = Column('pk','integer')
+    table.add_column(column)
+
+    repeated_number = 5
+    unrepeated_number = 0
+
+    row_instance = {'pk': repeated_number}
+    table.row_instances.append(row_instance)
+
+
+    assert faker._exists_in_instance(repeated_number, table, column)
+    assert not faker._exists_in_instance(unrepeated_number, table, column)
+
+def test_list_values(faker, table):
+    column_1 = Column('pk','integer')
+    column_2 = Column('c2','integer')
+    column_3 = Column('c3','integer')
+    column_4 = Column('c4','integer')
+
+    table.add_column(column_1)
+    table.add_column(column_2)
+    table.add_column(column_3)
+    table.add_column(column_4)
+
+    unordered_values ={}
+    unordered_values['c4'] = 4
+    unordered_values['pk'] = 1
+    unordered_values['c3'] = 3
+    unordered_values['c2'] = 2
+
+    output = faker._list_values(unordered_values, table)
+    
+    for idx, key in enumerate(table.columns.keys()):
+        assert output[idx] == unordered_values[key]
