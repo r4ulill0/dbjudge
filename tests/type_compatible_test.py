@@ -1,6 +1,7 @@
 import pytest
 import type_compatible
 
+
 def test_compatible_posgresql_strings():
     char = "character"
     varchar = "character varying"
@@ -10,6 +11,7 @@ def test_compatible_posgresql_strings():
     assert type_compatible.is_string(varchar)
     assert type_compatible.is_string(nchar)
 
+
 def test_compatible_posgresql_integer():
     num = "integer"
     snum = "smallint"
@@ -17,17 +19,21 @@ def test_compatible_posgresql_integer():
     assert type_compatible.is_integer(num)
     assert type_compatible.is_integer(snum)
 
+
 def test_compatible_posgresql_double():
     real = "real"
     assert type_compatible.is_float(real)
+
 
 def test_compatible_posgresql_interval():
     interval = "interval"
     assert type_compatible.is_interval(interval)
 
+
 def test_compatible_posgresql_boolean():
     boolean = "boolean"
     assert type_compatible.is_boolean(boolean)
+
 
 def test_compatible_posgresql_date():
     date = "date"

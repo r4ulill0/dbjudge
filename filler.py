@@ -3,6 +3,7 @@ import psycopg2
 from structures import Table, Column, Context
 import fake_data_gen
 
+
 def generate_fake_data(context, db_connection):
     db_cursor = db_connection.cursor()
 
@@ -21,10 +22,12 @@ def _fill_table(table, faker, db_cursor):
     for _ in range(table.fake_data_size):
         values_list = faker.generate_fake(table)
         formatted_values_list = format_fake_values(values_list)
-        
-        insert_query = query_template.format(table.name,columns_names_list, formatted_values_list)
+
+        insert_query = query_template.format(
+            table.name, columns_names_list, formatted_values_list)
         print(insert_query)
         db_cursor.execute(insert_query)
+
 
 def format_columns_names(columns):
     result = ""
@@ -34,8 +37,9 @@ def format_columns_names(columns):
             result += name
         else:
             result += ", " + name
-    
+
     return result
+
 
 def format_fake_values(values):
     formatted_values = []
