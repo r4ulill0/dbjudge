@@ -100,7 +100,7 @@ def test_gen_interval(faker):
     
     assert isinstance(output, datetime.timedelta)
 
-def test_generate_default_fake(faker):
+def test_generate_fake(faker):
     supported_types = (type_compatible.ACCEPTED_STRING_DB_TYPES,
         type_compatible.ACCEPTED_INTEGER_DB_TYPES,
         type_compatible.ACCEPTED_BOOLEAN_DB_TYPES,
@@ -111,7 +111,7 @@ def test_generate_default_fake(faker):
     for supp_type in supported_types:
         for ctype in supp_type:
             column = Column("temp", ctype)
-            output = faker._generate_default_fake(column)
+            output = faker._generate_fake(column)
             assert isinstance(output, str)
 
 def test_default_generate_data_pool(faker):
@@ -186,10 +186,10 @@ def test_init_with_table_not_in_context():
     context = Context()
     
     with pytest.raises(exceptions.TableNotInContext):
-        faker = Faker(table, context)
+        Faker(table, context)
     
 
-def test_generate_fake(faker, table):
+def test_generate_fake_from_pool(faker, table):
     expected_output = ["surprise"]
     
     pool = set()
