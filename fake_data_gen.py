@@ -5,7 +5,8 @@ from psycopg2.extensions import IntervalFromPy
 from structures.context import Context
 from structures.table import Table
 from structures.column import Column
-from customFakes import generator as FakeGenerator
+from structures.fake_types import Fake_type
+from customFakes import custom_generator
 import exceptions
 import type_compatible
 
@@ -55,9 +56,8 @@ class Faker:
 
     def _generate_fake(self, column):
         if (type_compatible.is_string(column.ctype)):
-            if(column.fake_type != 'default'):
-                # NOT IMPLEMENTED YET
-                fake = 'dummy'
+            if(column.fake_type.category != Fake_type.default):
+                fake = custom_generator.gen_string()
             else:
                 fake = self._gen_string(column.max_char_len)
             formatted_fake = self._wrap_with_quote_marks(fake)

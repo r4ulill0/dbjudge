@@ -1,3 +1,5 @@
+from .fake_types import Default
+
 
 class Column:
     def __init__(self, name, ctype, nullable=False, unique=False):
@@ -8,7 +10,7 @@ class Column:
         self.nullable = nullable
         self.unique = unique
         self.max_char_len = None
-        self.fake_type = "default"
+        self.fake_type = Default()
 
     def add_reference(self, reference):
         self.reference.append(reference)
