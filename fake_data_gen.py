@@ -57,7 +57,7 @@ class Faker:
     def _generate_fake(self, column):
         if (type_compatible.is_string(column.ctype)):
             if(column.fake_type.category != Fake_type.default):
-                fake = custom_generator.gen_string()
+                fake = custom_generator.gen_string(column)
             else:
                 fake = self._gen_string(column.max_char_len)
             formatted_fake = self._wrap_with_quote_marks(fake)
