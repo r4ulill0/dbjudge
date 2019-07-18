@@ -1,6 +1,8 @@
 import os
 import psycopg2
-from structures import Table, Column, Context
+from structures.context import Context
+from structures.table import Table
+from structures.column import Column
 import fake_data_gen
 
 

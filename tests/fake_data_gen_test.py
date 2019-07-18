@@ -2,7 +2,9 @@ import pytest
 import datetime
 import type_compatible
 from fake_data_gen import Faker
-from structures import Context, Table, Column
+from structures.context import Context
+from structures.table import Table
+from structures.column import Column
 import exceptions
 
 @pytest.fixture

@@ -2,7 +2,9 @@ import pytest
 import psycopg2
 import conftest
 import squemaGetter
-from structures import Table, Column, Context
+from structures.context import Context
+from structures.table import Table
+from structures.column import Column
 
 
 @pytest.fixture

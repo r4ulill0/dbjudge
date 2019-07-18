@@ -2,7 +2,10 @@ import random
 import string
 import datetime
 from psycopg2.extensions import IntervalFromPy
-from structures import Table, Column, Context
+from structures.context import Context
+from structures.table import Table
+from structures.column import Column
+from customFakes import generator as FakeGenerator
 import exceptions
 import type_compatible
 
@@ -52,8 +55,9 @@ class Faker:
 
     def _generate_fake(self, column):
         if (type_compatible.is_string(column.ctype)):
-            if(False):
-                fake = 'impossible'
+            if(column.fake_type != 'default'):
+                # NOT IMPLEMENTED YET
+                fake = 'dummy'
             else:
                 fake = self._gen_string(column.max_char_len)
             formatted_fake = self._wrap_with_quote_marks(fake)

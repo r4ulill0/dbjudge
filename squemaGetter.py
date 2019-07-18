@@ -1,6 +1,10 @@
 import os
 import psycopg2
-from structures import Table, Column, Context, Reference, ForeignKey
+from structures.context import Context
+from structures.table import Table
+from structures.column import Column
+from structures.foreign_key import ForeignKey
+from structures.reference import Reference
 import queries
 
 

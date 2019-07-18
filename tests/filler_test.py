@@ -1,7 +1,9 @@
 import pytest
 import conftest
 import filler
-from structures import Context, Table, Column
+from structures.context import Context
+from structures.table import Table
+from structures.column import Column
 from fake_data_gen import Faker
 import datetime
 
