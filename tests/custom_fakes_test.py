@@ -1,5 +1,5 @@
 import pytest
-from customFakes import custom_generator
+from custom_fakes import custom_generator
 from structures.column import Column
 from structures.fake_types import Regex
 

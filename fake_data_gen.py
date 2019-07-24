@@ -6,7 +6,7 @@ from structures.context import Context
 from structures.table import Table
 from structures.column import Column
 from structures.fake_types import Fake_type
-from customFakes import custom_generator
+from custom_fakes import custom_generator
 import exceptions
 import type_compatible
 
