@@ -5,7 +5,7 @@ from structures.table import Table
 from structures.column import Column
 from structures.foreign_key import ForeignKey
 from structures.reference import Reference
-import queries
+from utils import queries
 
 
 def create_context(conn):
