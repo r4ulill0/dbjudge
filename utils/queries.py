@@ -96,3 +96,29 @@ INSTALLATION_QUERY = '''
         PRIMARY KEY (id)
     );
     '''
+
+CHECK_INTALLATION = '''
+    SELECT relname
+    FROM pg_catalog.pg_class c
+        LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+    WHERE relname like 'dbjudge_%' AND relkind='r'
+'''
+
+CREATE_DATABASE = '''
+    CREATE DATABASE {};
+'''
+
+CREATE_DB_REGISTRY = '''
+    INSERT INTO dbjudge_databases (name) VALUES (%s);
+'''
+
+DELETE_DATABASE = '''
+    DROP DATABASE {};
+'''
+DELETE_DB_REGISTRY = '''
+    DELETE FROM dbjudge_databases WHERE (name = %s);
+'''
+
+SHOW_DATABASES = '''
+    SELECT name FROM dbjudge_databases;
+'''
