@@ -97,8 +97,8 @@ def test_format_primary_key():
 
 
 def test_load_table_uniques(database_cursor, context_with_tables_and_columns):
-    table_persona = context_with_tables_and_columns.tables[1]
+    fake_table = Table('persona', 'fake_pk')
 
-    uniques = squemaGetter._load_table_uniques(table_persona, database_cursor)
+    uniques = squemaGetter._load_table_uniques(fake_table, database_cursor)
 
     assert uniques == set(['userid', 'dni'])
