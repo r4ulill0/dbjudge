@@ -40,19 +40,20 @@ TABLES_QUERY = '''
     from (select distinct IS_T.table_name, TH.level
     from information_schema.tables IS_T, tables_hierarchy TH
     where IS_T.table_schema='public' and IS_T.table_name=TH.table_name) R
-    order by level
+    WHERE R.table_name NOT LIKE 'dbjudge%'
+    order by level;
 
     '''
 COLUMN_TYPE_QUERY = '''
     select C.column_name, C.data_type, C.is_nullable, C.character_maximum_length
     from information_schema.columns C
-    where C.table_name=%s
+    where C.table_name=%s;
     '''
 
 CONSTRAINT_QUERY = '''
     select TC.constraint_name, TC.constraint_type
     from information_schema.table_constraints TC
-    where TC.table_name=%s
+    where TC.table_name=%s;
     '''
 
 REFERENCE_QUERY = '''
@@ -63,21 +64,21 @@ REFERENCE_QUERY = '''
     where RC.constraint_name=KCUf.constraint_name
         and RC.unique_constraint_name=KCUp.constraint_name
         and TC.constraint_type='FOREIGN KEY' and TC.constraint_name=KCUf.constraint_name
-        and KCUf.ordinal_position = KCUp.ordinal_position and KCUf.table_name=%s
+        and KCUf.ordinal_position = KCUp.ordinal_position and KCUf.table_name=%s;
     '''
 
 PRIMARY_KEY_QUERY = '''
     select KCU.column_name
     from information_schema.key_column_usage KCU, information_schema.table_constraints TC
     where TC.constraint_type='PRIMARY KEY'
-        and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s
+        and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s;
     '''
 
 UNIQUE_KEY_QUERY = '''
     select distinct KCU.column_name
     from information_schema.key_column_usage KCU, information_schema.table_constraints TC
     where (TC.constraint_type='UNIQUE' or TC.constraint_type='PRIMARY KEY')
-        and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s
+        and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s;
     '''
 INSTALLATION_QUERY = '''
     CREATE TABLE dbjudge_databases(
@@ -101,7 +102,7 @@ CHECK_INTALLATION = '''
     SELECT relname
     FROM pg_catalog.pg_class c
         LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
-    WHERE relname like 'dbjudge_%' AND relkind='r'
+    WHERE relname like 'dbjudge_%' AND relkind='r';
 '''
 
 CREATE_DATABASE = '''
@@ -121,4 +122,16 @@ DELETE_DB_REGISTRY = '''
 
 SHOW_DATABASES = '''
     SELECT name FROM dbjudge_databases;
+'''
+
+SHOW_CUSTOM_FAKE_TYPES = '''
+    SELECT DISTINCT fake_type FROM dbjudge_fake_data;
+'''
+
+CUSTOM_FAKE_TYPES_QUERY = '''
+    SELECT data FROM dbjudge_fake_data WHERE (fake_type = %s);
+'''
+
+REGISTER_FAKE_DATA = '''
+    INSERT INTO dbjudge_fake_data(data, fake_type) VALUES (%s, %s);
 '''
