@@ -128,7 +128,7 @@ SHOW_CUSTOM_FAKE_TYPES = '''
     SELECT DISTINCT fake_type FROM dbjudge_fake_data;
 '''
 
-CUSTOM_FAKE_TYPES_QUERY = '''
+CUSTOM_FAKES_QUERY = '''
     SELECT data FROM dbjudge_fake_data WHERE (fake_type = %s);
 '''
 

@@ -1,5 +1,6 @@
 import psycopg2
 import pytest
+from connection_manager.manager import Manager
 
 
 @pytest.fixture(scope="session")
@@ -13,6 +14,18 @@ def database_connection():
     yield conn
 
     conn.close()
+
+
+@pytest.fixture(scope="session")
+def database_manager():
+    manager = Manager(user='conexion', password='plsL3tM3in',
+                      host='127.0.0.1', database_name='tfg_test')
+    yield manager
+    writer = manager.main_connection.cursor()
+    writer.execute(open('tests/sql_files/dbjudge_tables_dropper.sql').read())
+    writer.close()
+    manager.main_connection.commit()
+    del manager
 
 
 @pytest.fixture(scope="session")

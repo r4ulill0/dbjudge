@@ -50,7 +50,7 @@ class Manager(metaclass=Singleton):
             return
 
     def create_database(self, db_name):
-        if(db_name in self.show_databases()):
+        if(db_name in self.get_databases()):
             exception = Exception()
             raise exception
         writer = self.main_connection.cursor()
@@ -65,7 +65,7 @@ class Manager(metaclass=Singleton):
         writer.close()
 
     def delete_database(self, db_name):
-        if(db_name not in self.show_databases()):
+        if(db_name not in self.get_databases()):
             exception = Exception()
             raise exception
         writer = self.main_connection.cursor()
@@ -79,7 +79,7 @@ class Manager(metaclass=Singleton):
 
         writer.close()
 
-    def show_databases(self):
+    def get_databases(self):
         reader = self.main_connection.cursor()
         reader.execute(queries.SHOW_DATABASES)
         results = reader.fetchall()
@@ -89,3 +89,22 @@ class Manager(metaclass=Singleton):
             formatted_results.append(result[0])
 
         return formatted_results
+
+    def register_fake_data(self, data, fake_type):
+        writer = self.main_connection.cursor()
+        writer.execute(queries.REGISTER_FAKE_DATA, (data, fake_type))
+        writer.close()
+
+    def get_fake_types(self):
+        reader = self.main_connection.cursor()
+        reader.execute(queries.SHOW_CUSTOM_FAKE_TYPES)
+
+        result = reader.fetchall()
+        return result
+
+    def get_custom_fakes(self, fake_type):
+        reader = self.main_connection.cursor()
+        reader.execute(queries.CUSTOM_FAKES_QUERY, (fake_type,))
+
+        result = reader.fetchall()
+        return result
