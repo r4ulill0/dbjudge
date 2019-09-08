@@ -1,5 +1,6 @@
 import os
 import psycopg2
+from psycopg2 import sql
 from structures.context import Context
 from structures.table import Table
 from structures.column import Column
@@ -17,18 +18,18 @@ def generate_fake_data(context, db_connection):
 
 
 def _fill_table(table, faker, db_cursor):
-    query_template = "INSERT INTO {0} ({1}) VALUES ({2});"
+    query_template = "INSERT INTO {} ({}) VALUES (%s);"
 
     columns_names_list = format_columns_names(table.columns)
 
     for _ in range(table.fake_data_size):
         values_list = faker.generate_fake(table)
-        formatted_values_list = format_fake_values(values_list)
 
-        insert_query = query_template.format(
-            table.name, columns_names_list, formatted_values_list)
-        print(insert_query)
-        db_cursor.execute(insert_query)
+        insert_query = sql.SQL(query_template).format(
+            sql.Identifier(table.name),
+            sql.Identifier(columns_names_list)
+        )
+        db_cursor.execute(insert_query, values_list)
 
 
 def format_columns_names(columns):
@@ -41,13 +42,3 @@ def format_columns_names(columns):
             result += ", " + name
 
     return result
-
-
-def format_fake_values(values):
-    formatted_values = []
-    for value in values:
-        formatted_values.append(str(value))
-
-    formatted_result = ','.join(formatted_values)
-
-    return formatted_result
