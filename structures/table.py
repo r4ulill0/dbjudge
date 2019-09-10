@@ -12,6 +12,3 @@ class Table:
 
     def add_column(self, column: Column):
         self.columns[column.name] = column
-
-    def set_fake_data_size(self, num_rows):
-        self.fake_data_size = num_rows
