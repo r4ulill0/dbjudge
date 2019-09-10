@@ -1,6 +1,7 @@
-
 import psycopg2
 from psycopg2 import sql
+
+import exceptions
 from utils import queries
 from utils.metaclasses import Singleton
 
@@ -22,6 +23,8 @@ class Manager(metaclass=Singleton):
 
     def __del__(self):
         self.main_connection.close()
+        if(self.selected_db_connection != None):
+            self.selected_db_connection.close()
 
     def _is_installed(self):
         cursor = self.main_connection.cursor()
@@ -40,18 +43,22 @@ class Manager(metaclass=Singleton):
         self.main_connection.commit()
 
     def select_database(self, db_name):
+        if(db_name not in self.get_databases()):
+            exception = exceptions.MissingDatabaseError()
+            raise exception
         try:
             new_connection = psycopg2.connect(
                 host=self.host, dbname=db_name,
                 user=self.username, password=self.password)
-            self.selected_db_connection.close()
+            if (self.selected_db_connection != None):
+                self.selected_db_connection.close()
             self.selected_db_connection = new_connection
         finally:
             return
 
     def create_database(self, db_name):
         if(db_name in self.get_databases()):
-            exception = Exception()
+            exception = exceptions.DuplicatedDatabaseError()
             raise exception
         writer = self.main_connection.cursor()
         self.main_connection.commit()
@@ -66,7 +73,7 @@ class Manager(metaclass=Singleton):
 
     def delete_database(self, db_name):
         if(db_name not in self.get_databases()):
-            exception = Exception()
+            exception = exceptions.MissingDatabaseError()
             raise exception
         writer = self.main_connection.cursor()
         self.main_connection.commit()

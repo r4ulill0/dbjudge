@@ -5,13 +5,6 @@ from structures.column import Column
 from structures.fake_types import Regex, Custom
 
 
-@pytest.fixture(scope='module')
-def load_csv_fakes(database_manager):
-    file_path = 'tests/csv_files/names.csv'
-    results = custom_loader.load_csv_fakes(file_path)
-    custom_loader.save_to_database(results, (0,), ('woman_names',))
-
-
 def test_gen_regex():
 
     expression = '[ab]+'

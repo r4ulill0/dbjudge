@@ -1,6 +1,7 @@
 import psycopg2
 import pytest
 from connection_manager.manager import Manager
+from custom_fakes import custom_loader
 
 
 @pytest.fixture(scope="session")
@@ -43,3 +44,19 @@ def cleandb(database_connection):
     cursor.close()
     database_connection.commit()
     database_connection.close()
+
+
+@pytest.fixture(scope='session')
+def load_csv_fakes(database_manager):
+    file_paths = []
+    names = []
+    file_paths.append('tests/csv_files/woman_names.csv')
+    names.append('woman_names')
+    file_paths.append('tests/csv_files/man_names.csv')
+    names.append('man_names')
+    file_paths.append('tests/csv_files/surnames.csv')
+    names.append('surnames')
+    for file_path, name in zip(file_paths, names):
+        results = []
+        results = custom_loader.load_csv_fakes(file_path)
+        custom_loader.save_to_database(results, (0,), (name,))

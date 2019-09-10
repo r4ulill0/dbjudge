@@ -1,6 +1,11 @@
+from collections import Counter
+from copy import deepcopy
+
 import psycopg2
 import pytest
 
+from exceptions import DuplicatedDatabaseError
+from exceptions import MissingDatabaseError
 from connection_manager.manager import Manager
 
 
@@ -15,6 +20,10 @@ def make_database(database_manager):
 
     yield _make_database
 
+    if (database_manager.selected_db_connection != None):
+        database_manager.selected_db_connection.close()
+        database_manager.selected_db_connection = None
+
     for db in created_dbs:
         database_manager.delete_database(db)
 
@@ -25,6 +34,28 @@ def test_installation(database_manager):
     assert(installed_after)
 
 
+def test_instantiation_after_install(database_manager):
+    db_name = database_manager.main_connection.info.dbname
+    second_instance = Manager.__new__(Manager)
+    Manager.__init__(second_instance,
+                     user=database_manager.username,
+                     password=database_manager.password,
+                     host=database_manager.host,
+                     database_name=db_name)
+
+    assert(second_instance._is_installed())
+
+
+def test_already_created_manager(database_manager):
+    new_manager = Manager(
+        user=database_manager.username,
+        password=database_manager.password,
+        host=database_manager.host,
+        database_name=database_manager.main_connection.info.dbname
+    )
+    assert(new_manager == database_manager)
+
+
 def test_singleton(database_manager):
 
     instance1 = database_manager
@@ -32,6 +63,25 @@ def test_singleton(database_manager):
 
     assert(isinstance(instance1, Manager))
     assert(isinstance(instance2, Manager))
+
+
+def test_delete_manager(database_manager):
+    manager_copy = deepcopy(database_manager)
+    manager_copy.__del__()
+
+    assert(manager_copy.main_connection.closed != 0)
+
+
+def test_delete_manager_with_selection(database_manager, make_database):
+    selected_db_name = 'delete_manager_test'
+    make_database(selected_db_name)
+    database_manager.select_database(selected_db_name)
+
+    manager_copy = deepcopy(database_manager)
+    manager_copy.__del__()
+
+    assert(manager_copy.main_connection.closed != 0)
+    assert(manager_copy.selected_db_connection != 0)
 
 
 def test_db_create(database_manager, make_database):
@@ -44,6 +94,16 @@ def test_db_create(database_manager, make_database):
     assert(db_name in database_manager.get_databases())
 
 
+def test_db_create_duplicated(database_manager, make_database):
+    make_database('duplicated_table')
+    exception = Exception()
+    try:
+        make_database('duplicated_table')
+    except DuplicatedDatabaseError as err:
+        exception = err
+    assert(type(exception) == DuplicatedDatabaseError)
+
+
 def test_db_delete(database_manager, make_database):
     db_target_name = 'db_delete_test'
     database_manager.create_database(db_target_name)
@@ -54,6 +114,16 @@ def test_db_delete(database_manager, make_database):
 
     assert(before_creation > after_creation)
     assert(db_target_name not in database_manager.get_databases())
+
+
+def test_db_delete_nonexistent(database_manager):
+    exception = Exception()
+    try:
+        database_manager.delete_database('nonexistent_db')
+    except MissingDatabaseError as err:
+        exception = err
+
+    assert(type(exception) == MissingDatabaseError)
 
 
 def test_db_show(make_database, database_manager):
@@ -71,3 +141,36 @@ def test_db_show(make_database, database_manager):
     assert(db_name2 in databases)
     assert(db_name3 in databases)
     assert(len(databases) == 3)
+
+
+def test_select_database(database_manager, make_database):
+    db_name1 = 'selection_test'
+    db_name2 = 'selection_test2'
+    make_database(db_name1)
+    make_database(db_name2)
+
+    database_manager.select_database(db_name1)
+    result_name1 = database_manager.selected_db_connection.info.dbname
+    database_manager.select_database(db_name2)
+    result_name2 = database_manager.selected_db_connection.info.dbname
+
+    assert(result_name1 == db_name1)
+    assert(result_name2 == db_name2)
+
+
+def test_select_nonexistent_database(database_manager):
+    exception = Exception()
+    try:
+        database_manager.select_database('nonexistent_db')
+    except MissingDatabaseError as err:
+        exception = err
+
+    assert(type(exception) == MissingDatabaseError)
+
+
+def test_get_fake_types(database_manager, load_csv_fakes):
+
+    expected = (('woman_names',), ('man_names',), ('surnames',))
+    result = database_manager.get_fake_types()
+
+    assert(Counter(result) == Counter(expected))

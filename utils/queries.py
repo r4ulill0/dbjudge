@@ -88,7 +88,7 @@ INSTALLATION_QUERY = '''
     CREATE TABLE dbjudge_fake_data(
         data text,
         fake_type varchar(20),
-        PRIMARY KEY (data)
+        PRIMARY KEY (data, fake_type)
     );
     CREATE TABLE dbjudge_questions(
         id integer,
