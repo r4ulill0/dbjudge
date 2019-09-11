@@ -5,6 +5,10 @@ from fake_data_gen import Faker
 from structures.context import Context
 from structures.table import Table
 from structures.column import Column
+from structures.reference import Reference
+from structures.foreign_key import ForeignKey
+from structures.fake_types import Custom
+from structures.fake_types import Regex
 import exceptions
 
 @pytest.fixture
@@ -102,6 +106,48 @@ def test_gen_interval(faker):
     
     assert isinstance(output, datetime.timedelta)
 
+def test_generate_fake_with_no_uniques_avaiable(faker):
+    table = Table('uniques_table', ('unique_col',))
+    column = Column('unique_col','character varying',unique=True)
+    table.add_column(column)
+    table.row_instances.append({column.name: 'default'})
+    column.fake_type = Regex('extra_unique')
+    faker.column_data_pool['unique_col'] = set()
+    faker.column_data_pool['unique_col'].add('default')
+
+    values = faker.generate_fake(table)
+
+    assert values[0]== "'extra_unique'"
+
+def test_generate_fake_with_foreign_key(faker):
+    check_value = 'check value'
+    target = Table('target_table', ('target_id',))
+    table = Table('table', ('id',))
+    target_pk = Column('target_id','character varying', unique=True)
+    id_col = Column('id', 'integer', unique=True)
+    ref_col = Column('ref', 'character varying')
+    
+    ref_source = 'ref'
+    ref_target = 'target_id'
+    reference = Reference(ref_source,ref_target)
+    ref_col.add_reference(reference)
+
+    fkey = ForeignKey(table, target)
+    fkey.add_column_reference(reference)
+
+    target.add_column(target_pk)
+    table.add_column(id_col)
+    table.add_column(ref_col)
+    table.foreign_keys.append(fkey)
+
+    target.row_instances.append({target_pk.name:check_value})
+
+    faker.column_data_pool[id_col.name] = set((check_value,))
+
+    values = faker.generate_fake(table)
+
+    assert values == [check_value,check_value]
+
 def test_generate_fake(faker):
     supported_types = (type_compatible.ACCEPTED_STRING_DB_TYPES,
         type_compatible.ACCEPTED_INTEGER_DB_TYPES,
@@ -116,12 +162,47 @@ def test_generate_fake(faker):
             output = faker._generate_fake(column)
             assert isinstance(output, str)
 
+def test_generate_custom_fake(faker, load_csv_fakes, database_manager, reset_cache):
+    col_regex = Column('regex','character varying')
+    col_woman = Column('woman', 'character varying')
+    regex_type = Regex('a')
+    woman_type = Custom('woman_names')
+    
+    col_regex.fake_type = regex_type
+    col_woman.fake_type = woman_type
+
+    reset_cache(woman_type.custom_type)
+
+    regex_result = faker._generate_fake(col_regex)
+    woman_result = faker._generate_fake(col_woman)
+
+    assert regex_result == "'a'"
+    assert woman_result == "'ZOILA ROCIO'"
+
+def test_invalid_column_type_generate_fake(faker):
+    exception = Exception()
+    column = Column('column', 'not supported yet')
+    try:
+        faker._generate_fake(column)
+    except exceptions.InvalidColumnTypeError as err:
+        exception = err
+
+    assert type(exception) == exceptions.InvalidColumnTypeError
+
 def test_default_generate_data_pool(faker):
-    column = Column("column",'character varying')
+    column = Column('column','character varying')
     size = 1000
     pool = faker._generate_data_pool(column,size)
 
     assert len(pool) == size
+
+def test_generate_nullable_data_pool(faker):
+    column = Column('column', 'character varying',nullable=True)
+    size = 2
+    pool = faker._generate_data_pool(column, size)
+
+    assert len(pool) == size
+    assert 'NULL' in pool
 
 def test_is_pool_big_enough(faker):
     bool_column = Column('bool','boolean')
@@ -250,9 +331,9 @@ def test_has_pool_uniques(faker, table):
     table.add_column(column_case_4)
 
 
-    assert faker._has_pool_uniques(table, column_case_1)
-    assert faker._has_pool_uniques(table, column_case_2)
-    assert not faker._has_pool_uniques(table, column_case_3)
+    assert not faker._has_pool_uniques(table, column_case_1)
+    assert not faker._has_pool_uniques(table, column_case_2)
+    assert faker._has_pool_uniques(table, column_case_3)
     assert not faker._has_pool_uniques(table, column_case_4)
 
 def test_exists_in_instance(faker, table):

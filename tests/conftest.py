@@ -2,6 +2,7 @@ import psycopg2
 import pytest
 from connection_manager.manager import Manager
 from custom_fakes import custom_loader
+from custom_fakes.custom_generator import Custom_cache
 
 
 @pytest.fixture(scope="session")
@@ -60,3 +61,14 @@ def load_csv_fakes(database_manager):
         results = []
         results = custom_loader.load_csv_fakes(file_path)
         custom_loader.save_to_database(results, (0,), (name,))
+
+
+@pytest.fixture
+def reset_cache():
+    def _reset_cache(fake_type):
+        if (not hasattr(Custom_cache, 'singleton_instance')):
+            Custom_cache(fake_type)
+        else:
+            Custom_cache.singleton_instance.fake_type = fake_type
+            Custom_cache.singleton_instance._update_data()
+    return _reset_cache

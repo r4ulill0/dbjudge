@@ -36,6 +36,7 @@ class Faker:
                 pool.add(self._generate_fake(column))
 
         if (column.nullable):
+            pool.pop()
             pool.add('NULL')
 
         return pool
@@ -88,6 +89,8 @@ class Faker:
             fake = self._gen_interval()
             formatted_fake = self._format_interval(fake)
             return formatted_fake
+        else:
+            raise exceptions.InvalidColumnTypeError()
 
     def _gen_string(self, max_len):
         max_string_len = max_len if max_len != None else 10
@@ -167,7 +170,8 @@ class Faker:
                 fake = random.sample(self.column_data_pool[column.name], 1)[0]
                 if (column.unique and not self._has_pool_uniques(table, column)):
                     actual_size = len(self.column_data_pool[column.name])
-                    self._generate_data_pool(column, actual_size)
+                    self.column_data_pool[column.name] = self._generate_data_pool(
+                        column, actual_size)
                 if (column.unique):
                     # TODO comprobar que el fake esté en alguna parte de las instancias de la tabla
                     while (self._exists_in_instance(fake, table, column)):
@@ -202,9 +206,9 @@ class Faker:
         instances_pool = set()
         for instance in table.row_instances:
             instances_pool.add(instance[column.name])
-        diff = faker_pool.intersection(instances_pool)
+        diff = faker_pool - instances_pool
 
-        condition = len(table.row_instances) == 0 or len(diff) != 0
+        condition = len(table.row_instances) == 0 or len(diff) > 0
         return condition
 
     def _exists_in_instance(self, fake, table, column):

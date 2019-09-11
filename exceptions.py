@@ -3,11 +3,11 @@ class DbjudgeError(Exception):
     pass
 
 
-class ColumnReferenceNotFound(Exception):
+class ColumnReferenceNotFound(DbjudgeError):
     pass
 
 
-class TableNotInContext(Exception):
+class TableNotInContext(DbjudgeError):
     pass
 
 
@@ -21,4 +21,8 @@ class DuplicatedDatabaseError(FillerError):
 
 
 class MissingDatabaseError(FillerError):
+    pass
+
+
+class InvalidColumnTypeError(DbjudgeError):
     pass

@@ -49,4 +49,4 @@ def _gen_custom_fake(fake_type):
     cache.check_cache(fake_type)
     data = cache.cached_data
 
-    return data.pop()
+    return data.pop()[0]
