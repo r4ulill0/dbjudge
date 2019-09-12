@@ -57,7 +57,7 @@ def _load_table_columns(table, database_cursor):
         new_column = Column(column_name, column_type,
                             column_nullable, column_unique)
 
-        if (column_char_len != 'NULL'):
+        if (column_char_len != None):
             new_column.max_char_len = column_char_len
 
         table.add_column(new_column)
