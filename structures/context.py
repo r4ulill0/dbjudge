@@ -13,6 +13,7 @@ class Context:
         for table in self.tables:
             if(table.name == table_name):
                 return table
+        raise exceptions.TableNotInContext()
 
     def resolve_column_reference(self, reference):
         table_name, column_name = reference
