@@ -3,6 +3,17 @@ from custom_fakes import custom_generator
 from custom_fakes import custom_loader
 from structures.column import Column
 from structures.fake_types import Regex, Custom
+from exceptions import InvalidColumnFakeType
+
+
+def test_invalid_column_type():
+    with pytest.raises(InvalidColumnFakeType):
+        dumb_col = Column('dumb', 'dumb')
+        modified_regex = Regex('a?b')
+        modified_regex.category = 'modified'
+        dumb_col.fake_type = modified_regex
+
+        custom_generator.gen_string(dumb_col)
 
 
 def test_gen_regex():
@@ -20,6 +31,20 @@ def test_gen_regex():
     for char in result:
         assert (char == 'a') or (char == 'b')
     assert len(result) <= 5
+
+
+def test_custom_fake_cache(load_csv_fakes):
+    cache = custom_generator.Custom_cache('woman_names')
+
+    initial_size = len(cache.cached_data)
+    cache.cached_data.clear()
+    cleared_size = len(cache.cached_data)
+    cache.check_cache('man_names')
+    updated_size = len(cache.cached_data)
+
+    assert initial_size == 24494
+    assert cleared_size == 0
+    assert updated_size == 25442
 
 
 def test_get_custom_fake(database_manager, load_csv_fakes):

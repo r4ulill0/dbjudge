@@ -3,6 +3,8 @@ from structures.fake_types import Fake_type
 from structures.fake_types import Regex
 from connection_manager.manager import Manager
 from utils.metaclasses import Singleton
+from exceptions import InvalidColumnFakeType
+
 from xeger import Xeger
 
 
@@ -33,7 +35,8 @@ def gen_string(column: Column):
     elif(column.fake_type.category == Fake_type.custom):
         custom_data = column.fake_type
         result = _gen_custom_fake(custom_data.custom_type)
-
+    else:
+        raise InvalidColumnFakeType()
     return result
 
 

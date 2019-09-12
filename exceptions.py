@@ -26,3 +26,7 @@ class MissingDatabaseError(FillerError):
 
 class InvalidColumnTypeError(DbjudgeError):
     pass
+
+
+class InvalidColumnFakeType(DbjudgeError):
+    pass
