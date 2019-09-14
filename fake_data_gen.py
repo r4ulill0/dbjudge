@@ -61,8 +61,7 @@ class Faker:
                 fake = custom_generator.gen_string(column)
             else:
                 fake = self._gen_string(column.max_char_len)
-            formatted_fake = self._wrap_with_quote_marks(fake)
-            return formatted_fake
+            return fake
 
         elif (type_compatible.is_integer(column.ctype)):
             bytes_limit = type_compatible.bytes_limit(column.ctype)

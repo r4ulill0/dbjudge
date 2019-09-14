@@ -117,7 +117,7 @@ def test_generate_fake_with_no_uniques_avaiable(faker):
 
     values = faker.generate_fake(table)
 
-    assert values[0]== "'extra_unique'"
+    assert values[0]== 'extra_unique'
 
 def test_generate_fake_with_foreign_key(faker):
     check_value = 'check value'
@@ -176,8 +176,8 @@ def test_generate_custom_fake(faker, load_csv_fakes, database_manager, reset_cac
     regex_result = faker._generate_fake(col_regex)
     woman_result = faker._generate_fake(col_woman)
 
-    assert regex_result == "'a'"
-    assert woman_result == "'ZOILA ROCIO'"
+    assert regex_result == 'a'
+    assert woman_result == 'ZOILA ROCIO'
 
 def test_invalid_column_type_generate_fake(faker):
     exception = Exception()
