@@ -36,19 +36,6 @@ def test_generate_fake_data(database_connection, db_empty_table):
     filler.generate_fake_data(context, database_connection)
 
 
-def test_format_columns_names():
-    col_color = Column("color", "character")
-    col_license = Column("license", "character varying")
-    col_date = Column("time", "date")
-    columns = {'color': col_color, 'license': col_license, 'time': col_date}
-
-    output = filler.format_columns_names(columns)
-    assert 'color' in output
-    assert 'license' in output
-    assert 'time' in output
-    assert ', ' in output
-
-
 def test_fill_table(db_empty_table, database_cursor):
 
     db_empty_table.fake_data_size = 3

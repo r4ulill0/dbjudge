@@ -18,27 +18,14 @@ def generate_fake_data(context, db_connection):
 
 
 def _fill_table(table, faker, db_cursor):
-    query_template = "INSERT INTO {} ({}) VALUES (%s);"
-
-    columns_names_list = format_columns_names(table.columns)
+    query_template = "INSERT INTO {} ({}) VALUES ({});"
 
     for _ in range(table.fake_data_size):
         values_list = faker.generate_fake(table)
 
         insert_query = sql.SQL(query_template).format(
             sql.Identifier(table.name),
-            sql.Identifier(columns_names_list)
+            sql.SQL(',').join(map(sql.Identifier, table.columns.keys())),
+            sql.SQL(',').join(sql.Placeholder() * len(values_list))
         )
         db_cursor.execute(insert_query, values_list)
-
-
-def format_columns_names(columns):
-    result = ""
-    for idx, key in enumerate(columns):
-        name = columns[key].name
-        if (idx == 0):
-            result += name
-        else:
-            result += ", " + name
-
-    return result
