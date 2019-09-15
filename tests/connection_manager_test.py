@@ -95,13 +95,10 @@ def test_db_create(database_manager, make_database):
 
 
 def test_db_create_duplicated(database_manager, make_database):
-    make_database('duplicated_table')
-    exception = Exception()
-    try:
+    with pytest.raises(DuplicatedDatabaseError):
         make_database('duplicated_table')
-    except DuplicatedDatabaseError as err:
-        exception = err
-    assert(type(exception) == DuplicatedDatabaseError)
+
+        make_database('duplicated_table')
 
 
 def test_db_delete(database_manager, make_database):
@@ -117,13 +114,8 @@ def test_db_delete(database_manager, make_database):
 
 
 def test_db_delete_nonexistent(database_manager):
-    exception = Exception()
-    try:
+    with pytest.raises(MissingDatabaseError):
         database_manager.delete_database('nonexistent_db')
-    except MissingDatabaseError as err:
-        exception = err
-
-    assert(type(exception) == MissingDatabaseError)
 
 
 def test_db_show(make_database, database_manager):
@@ -159,13 +151,8 @@ def test_select_database(database_manager, make_database):
 
 
 def test_select_nonexistent_database(database_manager):
-    exception = Exception()
-    try:
+    with pytest.raises(MissingDatabaseError):
         database_manager.select_database('nonexistent_db')
-    except MissingDatabaseError as err:
-        exception = err
-
-    assert(type(exception) == MissingDatabaseError)
 
 
 def test_get_fake_types(database_manager, load_csv_fakes):

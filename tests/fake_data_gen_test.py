@@ -180,15 +180,11 @@ def test_generate_custom_fake(faker, load_csv_fakes, database_manager, reset_cac
     assert woman_result == 'ZOILA ROCIO'
 
 def test_invalid_column_type_generate_fake(faker):
-    exception = Exception()
-    column = Column('column', 'not supported yet')
-    try:
+    with pytest.raises(exceptions.InvalidColumnTypeError):
+        column = Column('column', 'not supported yet')
+        
         faker._generate_fake(column)
-    except exceptions.InvalidColumnTypeError as err:
-        exception = err
-
-    assert type(exception) == exceptions.InvalidColumnTypeError
-
+    
 def test_default_generate_data_pool(faker):
     column = Column('column','character varying')
     size = 1000
