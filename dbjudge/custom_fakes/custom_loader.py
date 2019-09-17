@@ -1,5 +1,5 @@
 import csv
-from connection_manager.manager import Manager
+from dbjudge.connection_manager.manager import Manager
 
 
 def load_csv_fakes(csv_file_path):

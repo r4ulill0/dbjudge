@@ -1,9 +1,9 @@
 import psycopg2
 from psycopg2 import sql
 
-import exceptions
-from utils import queries
-from utils.metaclasses import Singleton
+from dbjudge import exceptions
+from dbjudge.utils import queries
+from dbjudge.utils.metaclasses import Singleton
 
 
 class Manager(metaclass=Singleton):

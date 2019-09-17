@@ -2,13 +2,14 @@ import random
 import string
 import datetime
 from psycopg2.extensions import IntervalFromPy
-from structures.context import Context
-from structures.table import Table
-from structures.column import Column
-from structures.fake_types import Fake_type
-from custom_fakes import custom_generator
-import exceptions
-import type_compatible
+
+from dbjudge.structures.context import Context
+from dbjudge.structures.table import Table
+from dbjudge.structures.column import Column
+from dbjudge.structures.fake_types import Fake_type
+from dbjudge.custom_fakes import custom_generator
+from dbjudge import exceptions
+from dbjudge import type_compatible
 
 
 class Faker:

@@ -1,4 +1,4 @@
-from structures.column import Column
+from dbjudge.structures.column import Column
 
 
 class Table:

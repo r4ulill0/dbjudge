@@ -1,9 +1,9 @@
-from structures.column import Column
-from structures.fake_types import Fake_type
-from structures.fake_types import Regex
-from connection_manager.manager import Manager
-from utils.metaclasses import Singleton
-from exceptions import InvalidColumnFakeType
+from dbjudge.structures.column import Column
+from dbjudge.structures.fake_types import Fake_type
+from dbjudge.structures.fake_types import Regex
+from dbjudge.connection_manager.manager import Manager
+from dbjudge.utils.metaclasses import Singleton
+from dbjudge.exceptions import InvalidColumnFakeType
 
 from xeger import Xeger
 

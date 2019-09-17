@@ -1,10 +1,11 @@
 import os
 import psycopg2
 from psycopg2 import sql
-from structures.context import Context
-from structures.table import Table
-from structures.column import Column
-import fake_data_gen
+
+from dbjudge.structures.context import Context
+from dbjudge.structures.table import Table
+from dbjudge.structures.column import Column
+from dbjudge import fake_data_gen
 
 
 def generate_fake_data(context, db_connection):

@@ -1,5 +1,5 @@
-import exceptions
-from structures.table import Table
+from dbjudge import exceptions
+from dbjudge.structures.table import Table
 
 
 class Context:
