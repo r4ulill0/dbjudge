@@ -1,15 +1,16 @@
 import pytest
 import datetime
-import type_compatible
-from fake_data_gen import Faker
-from structures.context import Context
-from structures.table import Table
-from structures.column import Column
-from structures.reference import Reference
-from structures.foreign_key import ForeignKey
-from structures.fake_types import Custom
-from structures.fake_types import Regex
-import exceptions
+
+from dbjudge import type_compatible
+from dbjudge import exceptions
+from dbjudge.fake_data_gen import Faker
+from dbjudge.structures.context import Context
+from dbjudge.structures.table import Table
+from dbjudge.structures.column import Column
+from dbjudge.structures.reference import Reference
+from dbjudge.structures.foreign_key import ForeignKey
+from dbjudge.structures.fake_types import Custom
+from dbjudge.structures.fake_types import Regex
 
 @pytest.fixture
 def table():

@@ -1,9 +1,9 @@
 import pytest
 
-from structures.context import Context
-from structures.reference import Reference
-from exceptions import TableNotInContext
-from exceptions import ColumnReferenceNotFound
+from dbjudge.structures.context import Context
+from dbjudge.structures.reference import Reference
+from dbjudge.exceptions import TableNotInContext
+from dbjudge.exceptions import ColumnReferenceNotFound
 
 
 def test_get_table_not_in_context():

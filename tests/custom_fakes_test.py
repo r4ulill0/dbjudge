@@ -1,9 +1,9 @@
 import pytest
-from custom_fakes import custom_generator
-from custom_fakes import custom_loader
-from structures.column import Column
-from structures.fake_types import Regex, Custom
-from exceptions import InvalidColumnFakeType
+from dbjudge.custom_fakes import custom_generator
+from dbjudge.custom_fakes import custom_loader
+from dbjudge.structures.column import Column
+from dbjudge.structures.fake_types import Regex, Custom
+from dbjudge.exceptions import InvalidColumnFakeType
 
 
 def test_invalid_column_type():

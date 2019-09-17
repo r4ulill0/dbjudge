@@ -4,9 +4,9 @@ from copy import deepcopy
 import psycopg2
 import pytest
 
-from exceptions import DuplicatedDatabaseError
-from exceptions import MissingDatabaseError
-from connection_manager.manager import Manager
+from dbjudge.exceptions import DuplicatedDatabaseError
+from dbjudge.exceptions import MissingDatabaseError
+from dbjudge.connection_manager.manager import Manager
 
 
 @pytest.fixture

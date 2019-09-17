@@ -1,8 +1,9 @@
 import psycopg2
 import pytest
-from connection_manager.manager import Manager
-from custom_fakes import custom_loader
-from custom_fakes.custom_generator import Custom_cache
+
+from dbjudge.connection_manager.manager import Manager
+from dbjudge.custom_fakes import custom_loader
+from dbjudge.custom_fakes.custom_generator import Custom_cache
 
 
 @pytest.fixture(scope="session")

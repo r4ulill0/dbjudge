@@ -1,10 +1,12 @@
 import pytest
 import conftest
-import filler
-from structures.context import Context
-from structures.table import Table
-from structures.column import Column
-from fake_data_gen import Faker
+
+from dbjudge import filler
+from dbjudge.structures.context import Context
+from dbjudge.structures.table import Table
+from dbjudge.structures.column import Column
+from dbjudge.fake_data_gen import Faker
+
 import datetime
 
 

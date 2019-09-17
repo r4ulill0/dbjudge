@@ -1,10 +1,10 @@
 import pytest
 import psycopg2
 import conftest
-import squemaGetter
-from structures.context import Context
-from structures.table import Table
-from structures.column import Column
+from dbjudge import squemaGetter
+from dbjudge.structures.context import Context
+from dbjudge.structures.table import Table
+from dbjudge.structures.column import Column
 
 
 @pytest.fixture

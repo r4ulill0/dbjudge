@@ -1,5 +1,5 @@
 import pytest
-import type_compatible
+from dbjudge import type_compatible
 
 
 def test_compatible_posgresql_strings():
