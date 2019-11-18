@@ -13,7 +13,7 @@ def load_csv_fakes(csv_file_path):
     return results
 
 
-def save_to_database(results, selected_columns, selected_names):
+def save_to_database(results, selected_columns=[], selected_names=[]):
     transactions = []
     for row in results:
         selected_data = []
@@ -26,7 +26,11 @@ def save_to_database(results, selected_columns, selected_names):
     manager = Manager.singleton_instance
 
     for idx, transaction in enumerate(transactions):
+        # Do not read first row, but if there are no names specified,
+        # take first row as names row
         if (idx == 0):
+            if len(selected_names) == 0:
+                selected_names = transactions[0]
             continue
 
         for col, fake_type_name in enumerate(selected_names):
