@@ -115,3 +115,7 @@ class Manager(metaclass=Singleton):
 
         result = reader.fetchall()
         return result
+
+    def execute_sql(self, query):
+        writer = self.selected_db_connection.cursor()
+        writer.execute(query)
