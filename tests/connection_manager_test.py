@@ -150,6 +150,14 @@ def test_select_database(database_manager, make_database):
     assert(result_name2 == db_name2)
 
 
+def test_selected_database_execution(database_manager, make_database):
+    db_name = 'selection_exec_test'
+    make_database(db_name)
+    sql = 'CREATE TABLE test_exec(test integer)'
+    database_manager.select_database(db_name)
+    database_manager.execute_sql(sql)
+
+
 def test_select_nonexistent_database(database_manager):
     with pytest.raises(MissingDatabaseError):
         database_manager.select_database('nonexistent_db')
