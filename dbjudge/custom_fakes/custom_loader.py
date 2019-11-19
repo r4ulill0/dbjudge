@@ -35,3 +35,5 @@ def save_to_database(results, selected_columns=[], selected_names=[]):
 
         for col, fake_type_name in enumerate(selected_names):
             manager.register_fake_data(transaction[col], fake_type_name)
+
+    manager.main_connection.commit()
