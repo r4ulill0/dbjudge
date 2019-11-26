@@ -29,4 +29,8 @@ def _fill_table(table, faker, db_cursor):
             sql.SQL(',').join(map(sql.Identifier, table.columns.keys())),
             sql.SQL(',').join(sql.Placeholder() * len(values_list))
         )
-        db_cursor.execute(insert_query, values_list)
+        try:
+            db_cursor.execute(insert_query, values_list)
+            db_cursor.connection.commit()
+        except:
+            db_cursor.connection.rollback()
