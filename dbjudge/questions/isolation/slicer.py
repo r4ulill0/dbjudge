@@ -1,14 +1,13 @@
-import copy
 import sqlparse
 
 
-def slice(query):
+def slice_sql(query):
     output_queries = []
     parsed_query = sqlparse.parse(query)
 
     where_clause = None
     for pos, element in enumerate(parsed_query[0]):
-        if type(element) == sqlparse.sql.Where:
+        if isinstance(element, sqlparse.sql.Where):
             where_clause = element
 
     and_positions = []
@@ -28,7 +27,7 @@ def slice(query):
             original_tokens[last_pos+modifier:pos]
 
         recomposed_query = str(parsed_query[0])
-        if not ';' in recomposed_query:
+        if ';' not in recomposed_query:
             recomposed_query += ';'
 
         output_queries.append(recomposed_query)

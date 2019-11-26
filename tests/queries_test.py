@@ -1,5 +1,5 @@
 import pytest
-from dbjudge.queries.isolation import slicer
+from dbjudge.questions.isolation import slicer
 
 
 def test_slice_querie():
@@ -27,6 +27,6 @@ def test_slice_querie():
          )
     ]
 
-    results = slicer.slice(test_query)
+    results = slicer.slice_sql(test_query)
 
     assert results == expected_results
