@@ -135,3 +135,8 @@ CUSTOM_FAKES_QUERY = '''
 REGISTER_FAKE_DATA = '''
     INSERT INTO dbjudge_fake_data(data, fake_type) VALUES (%s, %s);
 '''
+
+COPY_TABLE = '''
+    DROP TABLE IF EXISTS {};
+    CREATE TABLE {} (LIKE {} INCLUDING INDEXES INCLUDING CONSTRAINTS);
+'''
