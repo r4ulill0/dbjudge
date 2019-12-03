@@ -9,25 +9,6 @@ from dbjudge.exceptions import MissingDatabaseError
 from dbjudge.connection_manager.manager import Manager
 
 
-@pytest.fixture
-def make_database(database_manager):
-    created_dbs = []
-
-    # factory for database creation in tests
-    def _make_database(name):
-        database_manager.create_database(name)
-        created_dbs.append(name)
-
-    yield _make_database
-
-    if (database_manager.selected_db_connection != None):
-        database_manager.selected_db_connection.close()
-        database_manager.selected_db_connection = None
-
-    for db in created_dbs:
-        database_manager.delete_database(db)
-
-
 def test_installation(database_manager):
     installed_after = database_manager._is_installed()
 

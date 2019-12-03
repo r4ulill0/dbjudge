@@ -73,3 +73,22 @@ def reset_cache():
             Custom_cache.singleton_instance.fake_type = fake_type
             Custom_cache.singleton_instance._update_data()
     return _reset_cache
+
+
+@pytest.fixture
+def make_database(database_manager):
+    created_dbs = []
+
+    # factory for database creation in tests
+    def _make_database(name):
+        database_manager.create_database(name)
+        created_dbs.append(name)
+
+    yield _make_database
+
+    if (database_manager.selected_db_connection != None):
+        database_manager.selected_db_connection.close()
+        database_manager.selected_db_connection = None
+
+    for db in created_dbs:
+        database_manager.delete_database(db)
