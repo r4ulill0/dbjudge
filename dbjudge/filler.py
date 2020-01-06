@@ -6,6 +6,7 @@ from dbjudge.structures.context import Context
 from dbjudge.structures.table import Table
 from dbjudge.structures.column import Column
 from dbjudge import fake_data_gen
+from dbjudge.connection_manager.manager import Manager
 
 
 def generate_fake_data(context, db_connection):
@@ -15,22 +16,13 @@ def generate_fake_data(context, db_connection):
         faker = fake_data_gen.Faker(table, context)
         _fill_table(table, faker, db_cursor)
 
+    db_connection.commit()
     db_cursor.close()
 
 
 def _fill_table(table, faker, db_cursor):
-    query_template = "INSERT INTO {} ({}) VALUES ({});"
 
     for _ in range(table.fake_data_size):
         values_list = faker.generate_fake(table)
-
-        insert_query = sql.SQL(query_template).format(
-            sql.Identifier(table.name),
-            sql.SQL(',').join(map(sql.Identifier, table.columns.keys())),
-            sql.SQL(',').join(sql.Placeholder() * len(values_list))
-        )
-        try:
-            db_cursor.execute(insert_query, values_list)
-            db_cursor.connection.commit()
-        except:
-            db_cursor.connection.rollback()
+        Manager.singleton_instance.custom_insert(
+            table.name, table.columns.keys(), values_list, db_cursor)

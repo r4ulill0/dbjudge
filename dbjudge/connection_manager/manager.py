@@ -119,3 +119,17 @@ class Manager(metaclass=Singleton):
     def execute_sql(self, query):
         writer = self.selected_db_connection.cursor()
         writer.execute(query)
+
+    def custom_insert(self, table_name, columns_names, values, db_cursor=None):
+        if not db_cursor:
+            db_cursor = self.selected_db_connection.cursor()
+
+        query_template = "INSERT INTO {} ({}) VALUES ({});"
+
+        insert_query = sql.SQL(query_template).format(
+            sql.Identifier(table_name),
+            sql.SQL(',').join(map(sql.Identifier, columns_names)),
+            sql.SQL(',').join(sql.Placeholder() * len(values))
+        )
+
+        db_cursor.execute(insert_query, values)
