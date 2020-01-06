@@ -91,7 +91,7 @@ INSTALLATION_QUERY = '''
         PRIMARY KEY (data, fake_type)
     );
     CREATE TABLE dbjudge_questions(
-        id integer,
+        id SERIAL NOT NULL,
         question text,
         sql_query text,
         PRIMARY KEY (id)
@@ -139,4 +139,12 @@ REGISTER_FAKE_DATA = '''
 COPY_TABLE = '''
     DROP TABLE IF EXISTS {};
     CREATE TABLE {} (LIKE {} INCLUDING INDEXES INCLUDING CONSTRAINTS);
+'''
+
+COLUMN_INSTANCES = '''
+    SELECT {} FROM {};
+'''
+
+REGISTER_QUESTION_QUERY = '''
+    INSERT INTO dbjudge_questions (question, sql_query) VALUES (%s, %s);
 '''

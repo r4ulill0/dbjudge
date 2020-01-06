@@ -1,12 +1,16 @@
 import os
 import psycopg2
+from psycopg2 import sql
 
+from dbjudge.connection_manager.manager import Manager
 from dbjudge.structures.context import Context
 from dbjudge.structures.table import Table
 from dbjudge.structures.column import Column
 from dbjudge.structures.foreign_key import ForeignKey
 from dbjudge.structures.reference import Reference
 from dbjudge.utils import queries
+
+# FIXME File name, squema_recolector(?)
 
 
 def create_context(conn):
@@ -20,6 +24,8 @@ def create_context(conn):
         _load_table_columns(table, database_cursor)
 
     _load_columns_references(context, database_cursor)
+
+    update_context_instances(context, cursor=database_cursor)
 
     database_cursor.close()
     return context
@@ -101,3 +107,18 @@ def _load_columns_references(context, database_cursor):
             foreign_key.add_column_reference(reference)
 
             last_key = key
+
+
+def update_context_instances(context, cursor=None):
+    if not cursor:
+        cursor = Manager.singleton_instance.selected_db_connection.cursor()
+    for table in context.tables:
+        for col_name, column in table.columns.items():
+            transaction = sql.SQL(queries.COLUMN_INSTANCES).format(
+                sql.Identifier(col_name),
+                sql.Identifier(table.name)
+            )
+            cursor.execute(transaction)
+            instances = cursor.fetchall()
+            for instance in instances:
+                column.column_instances.add(instance)

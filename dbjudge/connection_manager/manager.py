@@ -133,3 +133,8 @@ class Manager(metaclass=Singleton):
         )
 
         db_cursor.execute(insert_query, values)
+
+    def register_question(self, question, query):
+        db_cursor = self.main_connection.cursor()
+        db_cursor.execute(queries.REGISTER_QUESTION_QUERY, (question, query))
+        self.main_connection.commit()
