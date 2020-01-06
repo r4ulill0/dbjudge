@@ -30,7 +30,7 @@ def db_empty_table(database_connection):
     database_connection.commit()
 
 
-def test_generate_fake_data(database_connection, db_empty_table):
+def test_generate_fake_data(database_connection, db_empty_table, database_manager):
 
     context = Context()
     context.add_table(db_empty_table)
@@ -38,7 +38,7 @@ def test_generate_fake_data(database_connection, db_empty_table):
     filler.generate_fake_data(context, database_connection)
 
 
-def test_fill_table(db_empty_table, database_cursor):
+def test_fill_table(db_empty_table, database_cursor, database_manager):
 
     db_empty_table.fake_data_size = 3
 
@@ -53,6 +53,8 @@ def test_fill_table(db_empty_table, database_cursor):
     db_cursor = database_cursor
 
     filler._fill_table(db_empty_table, faker, db_cursor)
+
+    db_cursor.connection.commit()
 
     result_query = 'SELECT * FROM filler_test ORDER BY id;'
     db_cursor.execute(result_query)
