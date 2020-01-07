@@ -1,7 +1,6 @@
 import pytest
 from dbjudge import squemaGetter
 from dbjudge.questions.isolation import slicer
-from dbjudge.questions.isolation import table_isolator
 from dbjudge.questions.generation.constraints_truth_table import Truth_table
 from dbjudge.questions.generation import generator
 
@@ -65,44 +64,6 @@ def test_slice_mapping(test_query):
                    "SELECT * FROM person p WHERE p.adress<30000;"]
     }
     assert mapped_slices == expected_result
-
-
-def test_table_isolation(database_manager, make_database):
-    db_name = 'isolation_test'
-    make_database(db_name)
-    database_manager.select_database(db_name)
-
-    table_name = 'dummy'
-    ddl = '''
-        CREATE TABLE dummy(
-            id INT PRIMARY KEY,
-            age INT CONSTRAINT legal_age CHECK (age > 18)
-        );
-    '''
-    database_manager.singleton_instance.execute_sql(ddl)
-    database_manager.singleton_instance.selected_db_connection.commit()
-
-    table_isolator.isolate(db_name, table_name)
-    insert_template = 'INSERT INTO dbjudge_isolation(id, age) VALUES (%s, %s)'
-    valid_values = (1, 23)
-    invalid_values = (2, 1)
-
-    writer = database_manager.selected_db_connection.cursor()
-    writer.execute(insert_template, valid_values)
-    database_manager.selected_db_connection.commit()
-    try:
-        writer.execute(insert_template, invalid_values)
-        database_manager.selected_db_connection.commit()
-    except:
-        database_manager.selected_db_connection.rollback()
-
-    query = 'SELECT * FROM dbjudge_isolation;'
-    writer.execute(query)
-    results = writer.fetchall()
-
-    expected_result = 1
-
-    assert len(results) == expected_result
 
 
 def test_truth_table_creation():
