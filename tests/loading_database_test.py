@@ -1,7 +1,7 @@
 import pytest
 import psycopg2
 import conftest
-from dbjudge import squemaGetter
+from dbjudge import squema_recollector
 from dbjudge.structures.context import Context
 from dbjudge.structures.table import Table
 from dbjudge.structures.column import Column
@@ -10,15 +10,15 @@ from dbjudge.structures.column import Column
 @pytest.fixture
 def context_with_tables_and_columns(database_cursor):
     context = Context()
-    squemaGetter._load_tables(context, database_cursor)
+    squema_recollector._load_tables(context, database_cursor)
     for table in context.tables:
-        squemaGetter._load_table_columns(table, database_cursor)
+        squema_recollector._load_table_columns(table, database_cursor)
 
     return context
 
 
 def test_create_context(database_connection):
-    context = squemaGetter.create_context(database_connection)
+    context = squema_recollector.create_context(database_connection)
 
     num_columns = 0
     num_foreign_keys = 0
@@ -34,7 +34,7 @@ def test_create_context(database_connection):
 def test_load_tables(database_cursor):
     context = Context()
 
-    squemaGetter._load_tables(context, database_cursor)
+    squema_recollector._load_tables(context, database_cursor)
     table = context.tables
 
     assert len(context.tables) == 3
@@ -45,7 +45,7 @@ def test_load_tables(database_cursor):
 def test_load_table_columns(database_cursor):
     table = Table('persona', ('userid',))
 
-    squemaGetter._load_table_columns(table, database_cursor)
+    squema_recollector._load_table_columns(table, database_cursor)
 
     column = table.columns
     assert column['userid'].name == 'userid'
@@ -64,7 +64,7 @@ def test_load_table_columns(database_cursor):
 
 def test_load_columns_references(database_cursor, context_with_tables_and_columns):
     context = context_with_tables_and_columns
-    squemaGetter._load_columns_references(context, database_cursor)
+    squema_recollector._load_columns_references(context, database_cursor)
 
     referencing_table = context.tables[2]
 
@@ -91,7 +91,7 @@ def test_load_columns_references(database_cursor, context_with_tables_and_column
 def test_format_primary_key():
     simulated_query_response = [('data_1',), ('data_2',)]
 
-    formated_data = squemaGetter._format_primary_key(simulated_query_response)
+    formated_data = squema_recollector._format_primary_key(simulated_query_response)
 
     assert formated_data == ('data_1', 'data_2')
 
@@ -99,6 +99,6 @@ def test_format_primary_key():
 def test_load_table_uniques(database_cursor, context_with_tables_and_columns):
     fake_table = Table('persona', 'fake_pk')
 
-    uniques = squemaGetter._load_table_uniques(fake_table, database_cursor)
+    uniques = squema_recollector._load_table_uniques(fake_table, database_cursor)
 
     assert uniques == set(['userid', 'dni'])

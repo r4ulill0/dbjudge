@@ -1,5 +1,5 @@
 import pytest
-from dbjudge import squemaGetter
+from dbjudge import squema_recollector
 from dbjudge.questions.isolation import slicer
 from dbjudge.questions.generation.constraints_truth_table import Truth_table
 from dbjudge.questions.generation import generator
@@ -43,7 +43,7 @@ def database_table_context(database_manager):
         db_cursor.execute(
             open('tests/sql_files/questions_tests_database.sql').read())
         db_cursor.connection.commit()
-        context = squemaGetter.create_context(
+        context = squema_recollector.create_context(
             database_manager.selected_db_connection)
         return context
     return _database_table_context

@@ -3,7 +3,7 @@ from dbjudge.connection_manager.manager import Manager
 from dbjudge.fake_data_gen import Faker
 from dbjudge.questions.isolation import slicer
 from dbjudge.questions.generation.constraints_truth_table import Truth_table
-from dbjudge import squemaGetter
+from dbjudge import squema_recollector
 
 TIMEOUT_PER_QUERY = 20
 
@@ -11,8 +11,8 @@ TIMEOUT_PER_QUERY = 20
 def create_question(database, query, question):
     Manager.singleton_instance.select_database(database)
     connection = Manager.singleton_instance.selected_db_connection
-    context = squemaGetter.create_context(connection)
-    squemaGetter.update_context_instances(context)
+    context = squema_recollector.create_context(connection)
+    squema_recollector.update_context_instances(context)
 
     creation_cursor = connection.cursor()
 

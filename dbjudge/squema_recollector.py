@@ -1,5 +1,3 @@
-import os
-import psycopg2
 from psycopg2 import sql
 
 from dbjudge.connection_manager.manager import Manager
@@ -9,8 +7,6 @@ from dbjudge.structures.column import Column
 from dbjudge.structures.foreign_key import ForeignKey
 from dbjudge.structures.reference import Reference
 from dbjudge.utils import queries
-
-# FIXME File name, squema_recolector(?)
 
 
 def create_context(conn):
