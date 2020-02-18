@@ -18,7 +18,7 @@ def save_to_database(results, selected_columns=[], selected_names=[]):
     for row in results:
         selected_data = []
         for idx, column in enumerate(row):
-            if (idx not in selected_columns):
+            if (selected_columns and idx not in selected_columns):
                 continue
             selected_data.append(column)
         transactions.append(selected_data)
@@ -29,7 +29,7 @@ def save_to_database(results, selected_columns=[], selected_names=[]):
         # Do not read first row, but if there are no names specified,
         # take first row as names row
         if (idx == 0):
-            if len(selected_names) == 0:
+            if not selected_names:
                 selected_names = transactions[0]
             continue
 

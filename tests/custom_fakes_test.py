@@ -1,9 +1,27 @@
 import pytest
+import logging
 from dbjudge.custom_fakes import custom_generator
 from dbjudge.custom_fakes import custom_loader
 from dbjudge.structures.column import Column
 from dbjudge.structures.fake_types import Regex, Custom
 from dbjudge.exceptions import InvalidColumnFakeType
+
+
+@pytest.fixture
+def expected_types(database_manager):
+    expected_types = ('Header', 'for', 'test')
+    yield expected_types
+
+    writer = database_manager.main_connection.cursor()
+    for e_type in expected_types:
+        try:
+            query = "DELETE FROM dbjudge_fake_data WHERE fake_type='{}';"
+            writer.execute(query, (e_type,))
+        except Exception as exception:
+            logging.warning(
+                "Failed to execute teardown query: %s\n%s".format((query, str(exception))))
+            writer.rollback()
+    database_manager.main_connection.commit()
 
 
 def test_invalid_column_type():
@@ -76,3 +94,49 @@ def test_custom_fake_loader(database_manager, load_csv_fakes):
 
     file_rows_without_header = 24494
     assert(len(results) == file_rows_without_header)
+
+
+def test_save_to_database_custom_names(database_manager, expected_types):
+    csv_file_path = 'tests/csv_files/save_to_database_test.csv'
+
+    loaded_data = custom_loader.load_csv_fakes(csv_file_path)
+    custom_loader.save_to_database(loaded_data, selected_names=expected_types)
+
+    reader = database_manager.main_connection.cursor()
+
+    assertion_query = ''' SELECT data, fake_type
+                        FROM dbjudge_fake_data
+                        WHERE fake_type like '{}'
+                            or fake_type like '{}'
+                            or fake_type like '{}';
+    '''.format(*expected_types)
+    reader.execute(assertion_query)
+
+    results = reader.fetchall()
+
+    assert len(results) == 5*len(expected_types)
+    for row in results:
+        assert row[1] in expected_types
+
+
+def test_save_to_database_default(database_manager):
+    csv_file_path = 'tests/csv_files/save_to_database_test.csv'
+
+    loaded_data = custom_loader.load_csv_fakes(csv_file_path)
+    custom_loader.save_to_database(loaded_data)
+    expected_titles = ('Titles', 'of', 'default')
+    reader = database_manager.main_connection.cursor()
+
+    assertion_query = ''' SELECT data, fake_type
+                        FROM dbjudge_fake_data
+                        WHERE fake_type like '{}'
+                            or fake_type like '{}'
+                            or fake_type like '{}';
+    '''.format(*expected_titles)
+    reader.execute(assertion_query)
+
+    results = reader.fetchall()
+
+    assert len(results) == 5*len(expected_titles)
+    for row in results:
+        assert row[1] in expected_titles
