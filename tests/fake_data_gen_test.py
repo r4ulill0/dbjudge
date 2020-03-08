@@ -1,5 +1,6 @@
 import pytest
 import datetime
+import decimal
 
 from dbjudge import type_compatible
 from dbjudge import exceptions
@@ -81,21 +82,36 @@ def test_gen_integer(faker):
     limit_2bytes = (-32768, 32767)
     limit_4bytes = (-2147483648, 2147483647)
 
-    output_2bytes = faker._gen_integer(2)
-    output_4bytes = faker._gen_integer(4)
+    output_2bytes = faker._gen_integer(2, None, None)
+    output_bot_2bytes = faker._gen_integer(2, limit_2bytes[0], limit_2bytes[0])
+    output_top_2bytes = faker._gen_integer(2, limit_2bytes[1], limit_2bytes[1])
+
+    output_4bytes = faker._gen_integer(4, None, None)
+    output_bot_4bytes = faker._gen_integer(4, limit_4bytes[0], limit_4bytes[0])
+    output_top_4bytes = faker._gen_integer(4, limit_4bytes[1], limit_4bytes[1])
 
     assert isinstance(output_2bytes, int)
     assert isinstance(output_4bytes, int)
     assert (output_2bytes >= limit_2bytes[0]) and (output_2bytes <= limit_2bytes[1])
     assert (output_4bytes >= limit_4bytes[0]) and (output_4bytes <= limit_4bytes[1])
+    assert output_bot_2bytes == limit_2bytes[0]
+    assert output_bot_4bytes == limit_4bytes[0]
+    assert output_top_2bytes == limit_2bytes[1]
+    assert output_top_4bytes == limit_4bytes[1]
     
 def test_gen_boolean(faker):
     output = faker._gen_boolean()
     assert isinstance(output, bool)
 
-def test_gen_float(faker):
-    output = faker._gen_float()
-    assert isinstance(output, float)
+def test_gen_decimal(faker):
+    top_value = decimal.Decimal('12.345')
+    bot_value = decimal.Decimal('-39.499')
+    output_top = faker._gen_decimal(3, top_value, top_value)
+    output_bot = faker._gen_decimal(3, bot_value, bot_value)
+    assert isinstance(output_top, decimal.Decimal)
+    assert isinstance(output_bot, decimal.Decimal)
+    assert output_top == top_value
+    assert output_bot == bot_value
 
 def test_gen_datetime(faker):
     output = faker._gen_datetime()

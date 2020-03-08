@@ -1,6 +1,7 @@
 import random
 import string
 import datetime
+import decimal
 from psycopg2.extensions import IntervalFromPy
 
 from dbjudge.structures.context import Context
@@ -66,7 +67,8 @@ class Faker:
 
         elif (type_compatible.is_integer(column.ctype)):
             bytes_limit = type_compatible.bytes_limit(column.ctype)
-            fake = self._gen_integer(bytes_limit)
+            fake = self._gen_integer(
+                bytes_limit, column.max_value, column.min_value)
             formatted_fake = str(fake)
             return formatted_fake
 
@@ -76,7 +78,8 @@ class Faker:
             return formatted_fake
 
         elif (type_compatible.is_float(column.ctype)):
-            fake = self._gen_float()
+            fake = self._gen_decimal(
+                column.max_char_len, column.min_value, column.min_value)
             formatted_fake = str(fake)
             return formatted_fake
 
@@ -100,11 +103,13 @@ class Faker:
             result += random.choice(string.ascii_letters)
         return result
 
-    def _gen_integer(self, bytes_limit):
+    def _gen_integer(self, bytes_limit, bottom_limit, top_limit):
         max_num_generated_with_bytes = (2**(bytes_limit*8))/2
         bottom = -max_num_generated_with_bytes
         top = max_num_generated_with_bytes - 1
-        result = random.randint(bottom, top)
+        min_end_point = bottom_limit if bottom_limit else bottom
+        max_end_point = top_limit if top_limit else top
+        result = random.randint(min_end_point, max_end_point)
 
         return result
 
@@ -112,19 +117,37 @@ class Faker:
         result = bool(random.getrandbits(1))
         return result
 
-    def _gen_float(self):
-        result = random.getrandbits(32) + random.random()
+    def _gen_decimal(self, decimal_positions, min_value, max_value):
+        default_max = decimal.Decimal('9999999.9999999')
+        default_min = decimal.Decimal('-9999999.9999999')
+        max_value = max_value if max_value else default_max
+        min_value = min_value if min_value else default_min
+        max_tuple = max_value.as_tuple()
+        min_tuple = min_value.as_tuple()
+
+        max_exp = max_tuple[2]
+        min_exp = min_tuple[2]
+        bigger_exp = max_exp if abs(max_exp) > abs(min_exp) else min_exp
+        conversion_divisor = decimal.Decimal(10**(bigger_exp*-1))
+        minimum = (min_value * conversion_divisor).to_integral()
+        maximum = (max_value * conversion_divisor).to_integral()
+
+        big_int = random.randint(minimum, maximum)
+        result = decimal.Decimal(big_int)/decimal.Decimal(conversion_divisor)
+        if decimal_positions:
+            round(result, decimal_positions)
         return result
 
     def _gen_datetime(self):
+        # TODO custom max and min dates (h,m,s included)
         max_ordinal = datetime.datetime.max.toordinal()
         ordinal_date = random.randint(1, max_ordinal)
         hour = random.randint(0, 23)
-        min = random.randint(0, 59)
+        minit = random.randint(0, 59)
         sec = random.randint(0, 59)
 
         date = datetime.datetime.fromordinal(ordinal_date)
-        result = date.replace(hour=hour, minute=min, second=sec)
+        result = date.replace(hour=hour, minute=minit, second=sec)
 
         return result
 
