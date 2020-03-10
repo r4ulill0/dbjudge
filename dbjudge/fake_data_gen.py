@@ -68,7 +68,7 @@ class Faker:
         elif (type_compatible.is_integer(column.ctype)):
             bytes_limit = type_compatible.bytes_limit(column.ctype)
             fake = self._gen_integer(
-                bytes_limit, column.max_value, column.min_value)
+                bytes_limit, column.min_value, column.max_value)
             formatted_fake = str(fake)
             return formatted_fake
 
@@ -79,12 +79,12 @@ class Faker:
 
         elif (type_compatible.is_float(column.ctype)):
             fake = self._gen_decimal(
-                column.max_char_len, column.min_value, column.min_value)
+                column.max_char_len, column.min_value, column.max_value)
             formatted_fake = str(fake)
             return formatted_fake
 
         elif(type_compatible.is_date(column.ctype)):
-            fake = self._gen_datetime()
+            fake = self._gen_datetime(column.min_value, column.max_value)
             formatted_fake = self._wrap_with_quote_marks(fake)
             return formatted_fake
 
@@ -138,16 +138,23 @@ class Faker:
             round(result, decimal_positions)
         return result
 
-    def _gen_datetime(self):
-        # TODO custom max and min dates (h,m,s included)
-        max_ordinal = datetime.datetime.max.toordinal()
-        ordinal_date = random.randint(1, max_ordinal)
-        hour = random.randint(0, 23)
-        minit = random.randint(0, 59)
-        sec = random.randint(0, 59)
+    def _gen_datetime(self, min_date, max_date):
+        min_date = min_date if min_date else datetime.datetime.min
+        max_date = max_date if max_date else datetime.datetime.max
+        max_ordinal = max_date.toordinal()
+        min_ordinal = min_date.toordinal()
+        ordinal_date = random.randint(min_ordinal, max_ordinal)
 
-        date = datetime.datetime.fromordinal(ordinal_date)
-        result = date.replace(hour=hour, minute=minit, second=sec)
+        in_range = False
+        while not in_range:
+            hour = random.randint(0, 23)
+            minit = random.randint(0, 59)
+            sec = random.randint(0, 59)
+
+            date = datetime.datetime.fromordinal(ordinal_date)
+            result = date.replace(hour=hour, minute=minit, second=sec)
+
+            in_range = min_date <= date and date <= max_date
 
         return result
 

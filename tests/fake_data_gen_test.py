@@ -114,7 +114,7 @@ def test_gen_decimal(faker):
     assert output_bot == bot_value
 
 def test_gen_datetime(faker):
-    output = faker._gen_datetime()
+    output = faker._gen_datetime(None, None)
 
     assert isinstance(output, datetime.datetime)
 
