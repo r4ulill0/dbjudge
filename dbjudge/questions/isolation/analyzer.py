@@ -16,13 +16,17 @@ def get_used_tables(query):
             from_clause_found = True
 
         elif from_clause_found and isinstance(token, sqlparse.sql.IdentifierList):
-            tables_tokens = token
-            break
+            tables = token
 
-    for table_token in tables_tokens:
-        if isinstance(table_token, sqlparse.sql.Identifier):
-            for token in table_token:
-                if token.match(sqlparse.tokens.Name, None):
-                    used_tables.append(table_token.normalized)
+            for table in tables:
+                if isinstance(table, sqlparse.sql.Identifier):
+                    for definition_element in table:
+                        if definition_element.match(sqlparse.tokens.Name, None):
+                            used_tables.append(definition_element.normalized)
+        elif from_clause_found and isinstance(token, sqlparse.sql.Identifier):
+            if isinstance(token, sqlparse.sql.Identifier):
+                for definition_element in token:
+                    if definition_element.match(sqlparse.tokens.Name, None):
+                        used_tables.append(definition_element.normalized)
 
-    return tuple(used_tables)
+    return set(used_tables)

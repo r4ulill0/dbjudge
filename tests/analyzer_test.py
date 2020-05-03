@@ -7,6 +7,6 @@ def test_get_used_tables():
 
     tables = analyzer.get_used_tables(test_query)
 
-    expected_tables = ("Libro", "Prestamo", "Persona")
+    expected_tables = set(("Libro", "Prestamo", "Persona"))
 
     assert tables == expected_tables
