@@ -94,7 +94,10 @@ INSTALLATION_QUERY = '''
         id SERIAL NOT NULL,
         question text,
         sql_query text,
-        PRIMARY KEY (id)
+        keywords text,
+        database varchar(29) NOT NULL,
+        PRIMARY KEY (id),
+        FOREIGN KEY (database) REFERENCES dbjudge_databases (name)
     );
     '''
 
@@ -116,6 +119,11 @@ CREATE_DB_REGISTRY = '''
 DELETE_DATABASE = '''
     DROP DATABASE {};
 '''
+
+DELETE_DB_QUESTIONS = '''
+    DELETE FROM dbjudge_questions WHERE (database = %s);
+'''
+
 DELETE_DB_REGISTRY = '''
     DELETE FROM dbjudge_databases WHERE (name = %s);
 '''
@@ -146,5 +154,17 @@ COLUMN_INSTANCES = '''
 '''
 
 REGISTER_QUESTION_QUERY = '''
-    INSERT INTO dbjudge_questions (question, sql_query) VALUES (%s, %s);
+    INSERT INTO dbjudge_questions (question, sql_query, keywords, database) VALUES (%s, %s, %s, %s) RETURNING id;
+'''
+
+GET_QUESTIONS = '''
+    SELECT question FROM dbjudge_questions WHERE (database = %s);
+'''
+
+SHOW_CORRECT_ANSWER_TO_QUESTION = '''
+    SELECT sql_query FROM dbjudge_questions WHERE (question = %s);
+'''
+
+QUESTION_KEYWORDS = '''
+    SELECT keywords FROM dbjudge_questions WHERE (question = %s);
 '''

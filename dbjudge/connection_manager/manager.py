@@ -81,6 +81,7 @@ class Manager(metaclass=Singleton):
         writer.execute(sql.SQL(queries.DELETE_DATABASE).format(
             sql.Identifier(db_name),
         ))
+        writer.execute(queries.DELETE_DB_QUESTIONS, (db_name,))
         writer.execute(queries.DELETE_DB_REGISTRY, (db_name,))
         self.main_connection.autocommit = False
 
@@ -134,7 +135,47 @@ class Manager(metaclass=Singleton):
 
         db_cursor.execute(insert_query, values)
 
-    def register_question(self, question, query):
+    def register_question(self, question, query, database, keywords=None):
+        if keywords:
+            keywords = ','.join(keywords)
+        else:
+            keywords = ''
         db_cursor = self.main_connection.cursor()
-        db_cursor.execute(queries.REGISTER_QUESTION_QUERY, (question, query))
+        db_cursor.execute(queries.REGISTER_QUESTION_QUERY,
+                          (question, query, keywords, database))
         self.main_connection.commit()
+
+    def get_questions(self, database=None):
+        if not database:
+            database = self.selected_db_connection.dbname
+        db_cursor = self.main_connection.cursor()
+        db_cursor.execute(queries.GET_QUESTIONS, (database,))
+
+        questions = db_cursor.fetchall()
+        return questions
+
+    def get_question_keywords(self, question):
+        reader = self.main_connection.cursor()
+        reader.execute(queries.QUESTION_KEYWORDS, (question,))
+        result = reader.fetchall()[0]
+
+        formatted_result = result[0].split(',')
+        return formatted_result
+
+    def execute_in_readonly(self, query):
+        self.selected_db_connection.set_session(readonly=True)
+
+        reader = self.selected_db_connection.cursor()
+        reader.execute(query)
+        result = reader.fetchall()
+
+        self.selected_db_connection.commit()
+        self.selected_db_connection.set_session(readonly=False)
+
+        return result
+
+    def get_correct_answer(self, question):
+        reader = self.main_connection.cursor()
+        reader.execute(queries.SHOW_CORRECT_ANSWER_TO_QUESTION, (question,))
+        result = reader.fetchall()
+        return result

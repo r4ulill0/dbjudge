@@ -29,7 +29,7 @@ def create_question(database, query, question):
                 table.name, table.columns.keys(), data, creation_cursor)
         connection.commit()
 
-    Manager.singleton_instance.register_question(question, query)
+    Manager.singleton_instance.register_question(question, query, database)
 
 
 def _generate_table_data(context, table, query_list):
