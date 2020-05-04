@@ -38,6 +38,9 @@ def slice_sql(query):
 
 
 def map_slices(slices):
+    '''
+    Map SQL query slices to its corresponding table. Only "WHERE" restrictions tables are mapped.
+    '''
     mapping = {}
 
     for query in slices:
