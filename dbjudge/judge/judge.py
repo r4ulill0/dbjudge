@@ -1,3 +1,4 @@
+from dbjudge import exceptions
 from dbjudge.connection_manager.manager import Manager
 from dbjudge.questions.isolation import analyzer
 
@@ -11,6 +12,9 @@ class Judge:
 
     def generate_report(self):
         '''Keywords are not case sensitive'''
+        if not self.session:
+            raise exceptions.SessionNotFound()
+
         db_connection = Manager.singleton_instance
         report = {}
         for question, answer in self.session.mapped_answers.items():

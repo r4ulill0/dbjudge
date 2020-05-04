@@ -1,4 +1,5 @@
 import pytest
+from dbjudge import exceptions
 from dbjudge.judge.judge import Session, Judge
 from dbjudge.connection_manager.manager import Manager
 
@@ -87,3 +88,9 @@ def test_unanswered_report(mocked_judge):
     assert not report[q1].correct_result
     assert not report[q2].correct_result
     assert not report[q3].correct_result
+
+
+def test_report_without_session():
+    with pytest.raises(exceptions.SessionNotFound):
+        new_judge = Judge()
+        new_judge.generate_report()
