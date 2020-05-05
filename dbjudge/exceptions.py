@@ -12,7 +12,7 @@ class TableNotInContext(DbjudgeError):
 
 
 class FillerError(DbjudgeError):
-    '''Error while filling the database with fake data'''
+    '''Exception raised while filling the database with fake data'''
     pass
 
 
@@ -29,4 +29,13 @@ class InvalidColumnTypeError(DbjudgeError):
 
 
 class InvalidColumnFakeType(DbjudgeError):
+    pass
+
+
+class JudgeError(DbjudgeError):
+    '''Exception raised while keeping track of user answers'''
+    pass
+
+
+class SessionNotFound(JudgeError):
     pass
