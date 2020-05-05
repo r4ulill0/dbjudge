@@ -81,7 +81,7 @@ UNIQUE_KEY_QUERY = '''
         and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s;
     '''
 INSTALLATION_QUERY = '''
-    CREATE TABLE dbjudge_databases(
+    CREATE TABLE dbjudge_database(
         name varchar(20) NOT NULL,
         PRIMARY KEY (name)
     );
@@ -90,14 +90,14 @@ INSTALLATION_QUERY = '''
         fake_type varchar(20),
         PRIMARY KEY (data, fake_type)
     );
-    CREATE TABLE dbjudge_questions(
+    CREATE TABLE dbjudge_question(
         id SERIAL NOT NULL,
         question text,
         sql_query text,
         keywords text,
         database varchar(29) NOT NULL,
         PRIMARY KEY (id),
-        FOREIGN KEY (database) REFERENCES dbjudge_databases (name)
+        FOREIGN KEY (database) REFERENCES dbjudge_database (name)
     );
     '''
 
@@ -113,7 +113,7 @@ CREATE_DATABASE = '''
 '''
 
 CREATE_DB_REGISTRY = '''
-    INSERT INTO dbjudge_databases (name) VALUES (%s);
+    INSERT INTO dbjudge_database (name) VALUES (%s);
 '''
 
 DELETE_DATABASE = '''
@@ -121,15 +121,15 @@ DELETE_DATABASE = '''
 '''
 
 DELETE_DB_QUESTIONS = '''
-    DELETE FROM dbjudge_questions WHERE (database = %s);
+    DELETE FROM dbjudge_question WHERE (database = %s);
 '''
 
 DELETE_DB_REGISTRY = '''
-    DELETE FROM dbjudge_databases WHERE (name = %s);
+    DELETE FROM dbjudge_database WHERE (name = %s);
 '''
 
 SHOW_DATABASES = '''
-    SELECT name FROM dbjudge_databases;
+    SELECT name FROM dbjudge_database;
 '''
 
 SHOW_CUSTOM_FAKE_TYPES = '''
@@ -154,17 +154,17 @@ COLUMN_INSTANCES = '''
 '''
 
 REGISTER_QUESTION_QUERY = '''
-    INSERT INTO dbjudge_questions (question, sql_query, keywords, database) VALUES (%s, %s, %s, %s) RETURNING id;
+    INSERT INTO dbjudge_question (question, sql_query, keywords, database) VALUES (%s, %s, %s, %s) RETURNING id;
 '''
 
 GET_QUESTIONS = '''
-    SELECT question FROM dbjudge_questions WHERE (database = %s);
+    SELECT question FROM dbjudge_question WHERE (database = %s);
 '''
 
 SHOW_CORRECT_ANSWER_TO_QUESTION = '''
-    SELECT sql_query FROM dbjudge_questions WHERE (question = %s);
+    SELECT sql_query FROM dbjudge_question WHERE (question = %s);
 '''
 
 QUESTION_KEYWORDS = '''
-    SELECT keywords FROM dbjudge_questions WHERE (question = %s);
+    SELECT keywords FROM dbjudge_question WHERE (question = %s);
 '''

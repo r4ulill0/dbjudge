@@ -125,7 +125,7 @@ def test_create_question(test_query, database_manager, make_database):
 
     assert_1_query = '''
         SELECT question, sql_query
-        FROM dbjudge_questions;
+        FROM dbjudge_question;
     '''
     assert_2_query = '''
         SELECT *
