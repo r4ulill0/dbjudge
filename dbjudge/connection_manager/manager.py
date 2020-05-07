@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import sql
+from sqlparse import keywords
 
 from dbjudge import exceptions
 from dbjudge.utils import queries
@@ -18,12 +19,12 @@ class Manager(metaclass=Singleton):
         self.port = port
 
         installed = self._is_installed()
-        if(not installed):
+        if not installed:
             self._install()
 
     def __del__(self):
         self.main_connection.close()
-        if(self.selected_db_connection != None):
+        if self.selected_db_connection is not None:
             self.selected_db_connection.close()
 
     def _is_installed(self):
@@ -33,12 +34,21 @@ class Manager(metaclass=Singleton):
         cursor.execute(query)
         result = cursor.fetchall()
 
-        is_installed = (len(result) == 3)
+        is_installed = (len(result) == 5)
         return is_installed
 
     def _install(self):
         writer = self.main_connection.cursor()
         writer.execute(queries.INSTALLATION_QUERY)
+        writer.close()
+        self.main_connection.commit()
+        self._install_default_keywords()
+
+    def _install_default_keywords(self):
+        with self.main_connection.cursor() as writer:
+            for keyword in keywords.KEYWORDS_COMMON:
+                writer.execute(queries.REGISTER_KEYWORD, (keyword,))
+
         writer.close()
         self.main_connection.commit()
 
@@ -72,7 +82,7 @@ class Manager(metaclass=Singleton):
         writer.close()
 
     def delete_database(self, db_name):
-        if(db_name not in self.get_databases()):
+        if db_name not in self.get_databases():
             exception = exceptions.MissingDatabaseError()
             raise exception
         writer = self.main_connection.cursor()
@@ -81,6 +91,7 @@ class Manager(metaclass=Singleton):
         writer.execute(sql.SQL(queries.DELETE_DATABASE).format(
             sql.Identifier(db_name),
         ))
+        writer.execute(queries.DELETE_DB_KEYWORDS, (db_name,))
         writer.execute(queries.DELETE_DB_QUESTIONS, (db_name,))
         writer.execute(queries.DELETE_DB_REGISTRY, (db_name,))
         self.main_connection.autocommit = False
@@ -136,14 +147,26 @@ class Manager(metaclass=Singleton):
         db_cursor.execute(insert_query, values)
 
     def register_question(self, question, query, database, keywords=None):
-        if keywords:
-            keywords = ','.join(keywords)
-        else:
-            keywords = ''
+        '''Register a question in the main database.
+
+            Parameters:
+                question (str): Question about target database
+                query (str): Correct answer written in SQL
+                database (str): Name of the target database
+                keywords (dict): Mapped keywords to a boolean value
+                    that indicates if it is a expected keyword or not
+        '''
         db_cursor = self.main_connection.cursor()
         db_cursor.execute(queries.REGISTER_QUESTION_QUERY,
-                          (question, query, keywords, database))
+                          (question, query, database))
         self.main_connection.commit()
+
+        question_id = db_cursor.fetchall()[0]
+        if keywords:
+            for keyword, expected in keywords.items():
+                db_cursor.execute(queries.REGISTER_KEYWORD_SELECTION,
+                                  (question_id, keyword, expected))
+            self.main_connection.commit()
 
     def get_questions(self, database=None):
         if not database:
@@ -157,9 +180,24 @@ class Manager(metaclass=Singleton):
     def get_question_keywords(self, question):
         reader = self.main_connection.cursor()
         reader.execute(queries.QUESTION_KEYWORDS, (question,))
-        result = reader.fetchall()[0]
+        result = reader.fetchall()
 
-        formatted_result = result[0].split(',')
+        formatted_result = []
+        for keyword in result:
+            formatted_result.append(keyword[0])
+
+        return formatted_result
+
+    def get_question_expected_keywords(self, question):
+        with self.main_connection.cursor() as reader:
+            reader.execute(queries.GET_EXPECTED_KEYWORDS, (question,))
+            result = reader.fetchall()
+            formatted_result = dict()
+            for keyword in result:
+                name = keyword[0]
+                expected = keyword[1]
+                formatted_result[name] = expected
+
         return formatted_result
 
     def execute_in_readonly(self, query):

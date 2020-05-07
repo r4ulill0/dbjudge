@@ -31,16 +31,19 @@ class Judge:
                 actual_tables_used = analyzer.get_used_tables(answer)
                 excess_tables_used = actual_tables_used - expected_tables_used
 
-                excluded_keywords = db_connection.get_question_keywords(
+                watched_keywords = db_connection.get_question_keywords(
                     question)
-                used_keywords = self._check_keywords(excluded_keywords, answer)
+                expected_keywords = db_connection.get_question_expected_keywords(
+                    question)
+                used_keywords = self._check_keywords(watched_keywords, answer)
             else:
                 correct_result = False
                 excess_tables_used = set()
-                used_keywords = []
+                used_keywords = set()
+                expected_keywords = dict()
 
             report[question] = Analysis(
-                correct_result, excess_tables_used, used_keywords, bool(answer))
+                correct_result, excess_tables_used, used_keywords, expected_keywords, bool(answer))
 
         return report
 
@@ -66,8 +69,21 @@ class Session:
 
 
 class Analysis:
-    def __init__(self, correct_result, excess_tables_used, used_keywords, answered):
-        self.correct_result = correct_result
+    def __init__(self, correct_result, excess_tables_used, used_keywords, expected_keywords, answered):
         self.excess_tables_used = excess_tables_used
         self.used_keywords = used_keywords
+        self.expected_keywords = expected_keywords
         self.answered = answered
+        self.keyword_compliant = self._keywords_check()
+        self.correct_result = correct_result and self.keyword_compliant
+
+    def is_correct(self):
+        return self.correct_result and self.keyword_compliant
+
+    def _keywords_check(self):
+        result = True
+        for keyword, expected in dict():
+            if (keyword in self.used_keywords) and not expected:
+                result = False
+
+        return result

@@ -13,7 +13,7 @@ a3 = "Select dni FROM Persona, Prestamo WHERE Persona.userid = Prestamo.persona 
 
 @pytest.fixture
 def mocked_judge(make_database):
-    keywords1 = ("group by",)
+    keywords1 = {"GROUP": False, "BY": False}
     mock_map = {q1: a1, q2: a2, q3: a3}
 
     dbname = 'judge_reportgen_test'
@@ -67,7 +67,7 @@ def test_used_keywords_report(mocked_judge):
     mocked_judge.session.mapped_answers[q1] = alternative_answer
     report = mocked_judge.generate_report()
 
-    expected_used_keywords = ("group by",)
+    expected_used_keywords = ("GROUP", "BY",)
 
     assert report[q1].correct_result
     assert report[q1].used_keywords == expected_used_keywords

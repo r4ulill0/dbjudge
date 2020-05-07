@@ -90,14 +90,25 @@ INSTALLATION_QUERY = '''
         fake_type varchar(20),
         PRIMARY KEY (data, fake_type)
     );
+    CREATE TABLE dbjudge_keyword(
+        name text,
+        PRIMARY KEY (name)
+    );
     CREATE TABLE dbjudge_question(
         id SERIAL NOT NULL,
         question text,
         sql_query text,
-        keywords text,
         database varchar(29) NOT NULL,
         PRIMARY KEY (id),
         FOREIGN KEY (database) REFERENCES dbjudge_database (name)
+    );
+    CREATE TABLE dbjudge_keyword_selection(
+        question SERIAL,
+        keyword text,
+        expected boolean,
+        PRIMARY KEY (question, keyword),
+        FOREIGN KEY (question) REFERENCES dbjudge_question (id),
+        FOREIGN KEY (keyword) REFERENCES dbjudge_keyword (name)
     );
     '''
 
@@ -118,6 +129,10 @@ CREATE_DB_REGISTRY = '''
 
 DELETE_DATABASE = '''
     DROP DATABASE {};
+'''
+
+DELETE_DB_KEYWORDS = '''
+    DELETE FROM dbjudge_keyword_selection ks USING dbjudge_question q WHERE (q.database = %s) AND (q.id = ks.question);
 '''
 
 DELETE_DB_QUESTIONS = '''
@@ -154,7 +169,7 @@ COLUMN_INSTANCES = '''
 '''
 
 REGISTER_QUESTION_QUERY = '''
-    INSERT INTO dbjudge_question (question, sql_query, keywords, database) VALUES (%s, %s, %s, %s) RETURNING id;
+    INSERT INTO dbjudge_question (question, sql_query, database) VALUES (%s, %s, %s) RETURNING id;
 '''
 
 GET_QUESTIONS = '''
@@ -166,5 +181,21 @@ SHOW_CORRECT_ANSWER_TO_QUESTION = '''
 '''
 
 QUESTION_KEYWORDS = '''
-    SELECT keywords FROM dbjudge_question WHERE (question = %s);
+    SELECT keyword FROM dbjudge_question q, dbjudge_keyword_selection ks WHERE (q.id = ks.question) AND (q.question = %s);
+'''
+
+REGISTER_KEYWORD = '''
+    INSERT INTO dbjudge_keyword (name) VALUES (%s);
+'''
+
+GET_KEYWORDS = '''
+    SELECT name FROM dbjudge_keywords;
+'''
+
+GET_EXPECTED_KEYWORDS = '''
+    SELECT keyword, expected FROM dbjudge_question q, dbjudge_keyword_selection ks WHERE (q.question = %s) AND (q.id = ks.question);
+'''
+
+REGISTER_KEYWORD_SELECTION = '''
+    INSERT INTO dbjudge_keyword_selection (question, keyword, expected) VALUES (%s, %s, %s);
 '''

@@ -90,5 +90,5 @@ def make_database(database_manager):
         database_manager.selected_db_connection.close()
         database_manager.selected_db_connection = None
 
-    for db in created_dbs:
+    for db in reversed(created_dbs):
         database_manager.delete_database(db)
