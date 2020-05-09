@@ -1,4 +1,6 @@
 from .fake_types import Default
+from dbjudge import type_compatible
+from dbjudge import exceptions
 
 
 class Column:
@@ -17,4 +19,14 @@ class Column:
     def add_reference(self, reference):
         self.reference.append(reference)
 
-    # TODO modify setters to verify types (ctype with type compatible)
+    @property
+    def ctype(self):
+        return self._ctype
+
+    @ctype.setter
+    def ctype(self, value):
+        if type_compatible.is_valid(value):
+            self._ctype = value
+        else:
+            raise exceptions.InvalidColumnTypeError(
+                "Unsupported column type: "+value)

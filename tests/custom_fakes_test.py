@@ -26,7 +26,7 @@ def expected_types(database_manager):
 
 def test_invalid_column_type():
     with pytest.raises(InvalidColumnFakeType):
-        dumb_col = Column('dumb', 'dumb')
+        dumb_col = Column('dumb', 'character varying')
         modified_regex = Regex('a?b')
         modified_regex.category = 'modified'
         dumb_col.fake_type = modified_regex
