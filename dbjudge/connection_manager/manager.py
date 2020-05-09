@@ -186,7 +186,7 @@ class Manager(metaclass=Singleton):
         for keyword in result:
             formatted_result.append(keyword[0])
 
-        return formatted_result
+        return set(formatted_result)
 
     def get_question_expected_keywords(self, question):
         with self.main_connection.cursor() as reader:

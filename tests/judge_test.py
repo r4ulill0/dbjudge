@@ -67,7 +67,7 @@ def test_used_keywords_report(mocked_judge):
     mocked_judge.session.mapped_answers[q1] = alternative_answer
     report = mocked_judge.generate_report()
 
-    expected_used_keywords = ("GROUP", "BY",)
+    expected_used_keywords = set(("GROUP", "BY"))
 
     assert report[q1].correct_result
     assert report[q1].used_keywords == expected_used_keywords

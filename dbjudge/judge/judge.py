@@ -55,7 +55,7 @@ class Judge:
             if keyword.lower() in answer.lower():
                 result.append(keyword)
 
-        return tuple(result)
+        return set(result)
 
 
 class Session:
