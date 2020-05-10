@@ -29,4 +29,4 @@ class Column:
             self._ctype = value
         else:
             raise exceptions.InvalidColumnTypeError(
-                "Unsupported column type: "+value)
+                "Unsupported column type: "+str(value))

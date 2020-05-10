@@ -21,5 +21,5 @@ class Context:
             if (table.name == table_name):
                 return table.columns[column_name]
 
-        raise exceptions.ColumnReferenceNotFound('column {column} not found in table: {table}',
-                                                 column_name, table_name)
+        raise exceptions.ColumnReferenceNotFound('column {column} not found in table: {table}'.format(
+                                                 column=column_name, table=table_name))
