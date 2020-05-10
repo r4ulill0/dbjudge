@@ -75,7 +75,7 @@ class Analysis:
         self.expected_keywords = expected_keywords
         self.answered = answered
         self.keyword_compliant = self._keywords_check()
-        self.correct_result = correct_result and self.keyword_compliant
+        self.correct_result = correct_result
 
     def is_correct(self):
         return self.correct_result and self.keyword_compliant
