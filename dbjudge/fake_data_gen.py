@@ -4,9 +4,6 @@ import datetime
 import decimal
 from psycopg2.extensions import IntervalFromPy
 
-from dbjudge.structures.context import Context
-from dbjudge.structures.table import Table
-from dbjudge.structures.column import Column
 from dbjudge.structures.fake_types import Fake_type
 from dbjudge.custom_fakes import custom_generator
 from dbjudge import exceptions
@@ -17,7 +14,7 @@ class Faker:
     def __init__(self, table, context, pool_size=100):
         if table not in context.tables:
             raise exceptions.TableNotInContext(
-                'Table {0} not in context', table.name)
+                'Table {0} not in context'.format(table.name))
 
         self._context = context
         self.column_data_pool = {}
@@ -33,11 +30,11 @@ class Faker:
             pool = self._fetch_foreing_key_pool(column.reference[0])
 
         else:
-            while (not self._is_pool_big_enough(len(pool), size, column)):
+            while not self._is_pool_big_enough(len(pool), size, column):
                 # for _ in range(size):
                 pool.add(self._generate_fake(column))
 
-        if (column.nullable):
+        if column.nullable:
             pool.pop()
             pool.add('NULL')
 
@@ -52,43 +49,43 @@ class Faker:
         response = (actual_size >= target_size
                     or (type_compatible.is_boolean(column.ctype) and actual_size >= 2)
                     or (type_compatible.is_string(column.ctype)
-                        and column.max_char_len != None
+                        and column.max_char_len is not None
                         and actual_size >= len(string.ascii_letters)*column.max_char_len)
                     )
         return response
 
     def _generate_fake(self, column):
-        if (type_compatible.is_string(column.ctype)):
-            if(column.fake_type.category != Fake_type.default):
+        if type_compatible.is_string(column.ctype):
+            if column.fake_type.category != Fake_type.default:
                 fake = custom_generator.gen_string(column)
             else:
                 fake = self._gen_string(column.max_char_len)
             return fake
 
-        elif (type_compatible.is_integer(column.ctype)):
+        elif type_compatible.is_integer(column.ctype):
             bytes_limit = type_compatible.bytes_limit(column.ctype)
             fake = self._gen_integer(
                 bytes_limit, column.min_value, column.max_value)
             formatted_fake = str(fake)
             return formatted_fake
 
-        elif (type_compatible.is_boolean(column.ctype)):
+        elif type_compatible.is_boolean(column.ctype):
             fake = self._gen_boolean()
             formatted_fake = str(fake)
             return formatted_fake
 
-        elif (type_compatible.is_float(column.ctype)):
+        elif type_compatible.is_float(column.ctype):
             fake = self._gen_decimal(
                 column.max_char_len, column.min_value, column.max_value)
             formatted_fake = str(fake)
             return formatted_fake
 
-        elif(type_compatible.is_date(column.ctype)):
+        elif type_compatible.is_date(column.ctype):
             fake = self._gen_datetime(column.min_value, column.max_value)
             formatted_fake = self._wrap_with_quote_marks(fake)
             return formatted_fake
 
-        elif (type_compatible.is_interval(column.ctype)):
+        elif type_compatible.is_interval(column.ctype):
             fake = self._gen_interval()
             formatted_fake = self._format_interval(fake)
             return formatted_fake
@@ -182,10 +179,10 @@ class Faker:
     def generate_fake(self, table):
 
         values_dict = {}
-        while (not self._valid_primary_key(table, values_dict)):
+        while not self._valid_primary_key(table, values_dict):
             values_dict = {}
 
-            if (len(table.foreign_keys) != 0):
+            if len(table.foreign_keys) != 0:
                 for foreign_key in table.foreign_keys:
                     row_instance = random.choice(
                         foreign_key.target_table.row_instances)
@@ -194,17 +191,17 @@ class Faker:
                         values_dict[reference.source] = row_instance[reference.target]
 
             for _, column in table.columns.items():
-                if (column.name in values_dict.keys()):
+                if column.name in values_dict.keys():
                     continue
 
                 fake = random.sample(self.column_data_pool[column.name], 1)[0]
-                if (column.unique and not self._has_pool_uniques(table, column)):
+                if column.unique and not self._has_pool_uniques(table, column):
                     actual_size = len(self.column_data_pool[column.name])
                     self.column_data_pool[column.name] = self._generate_data_pool(
                         column, actual_size)
-                if (column.unique):
-                    # TODO comprobar que el fake esté en alguna parte de las instancias de la tabla
-                    while (self._exists_in_instance(fake, table, column)):
+
+                if column.unique:
+                    while self._exists_in_instance(fake, table, column):
                         fake = random.sample(
                             self.column_data_pool[column.name], 1)[0]
                 values_dict[column.name] = fake
@@ -219,14 +216,14 @@ class Faker:
         is_correct_pk = True
         is_value_filled = len(table.columns) == len(values.keys())
 
-        if(not is_value_filled):
+        if not is_value_filled:
             return is_value_filled
 
         for instance in table.row_instances:
             for c_name in pk_column_names:
-                is_correct_pk = not (values[c_name] == instance[c_name])
+                is_correct_pk = not values[c_name] == instance[c_name]
 
-                if(not is_correct_pk):
+                if not is_correct_pk:
                     return is_correct_pk
 
         return is_correct_pk
@@ -245,7 +242,7 @@ class Faker:
         exists = False
 
         for instance in table.row_instances:
-            if (instance[column.name] == fake):
+            if instance[column.name] == fake:
                 exists = True
                 break
 
