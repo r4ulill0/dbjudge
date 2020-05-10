@@ -1,41 +1,41 @@
+'''Exceptions raised by dbjudge'''
+
+
 class DbjudgeError(Exception):
     '''Base class for exceptions related to dbjudge module '''
-    pass
 
 
 class ColumnReferenceNotFound(DbjudgeError):
-    pass
+    '''Exception raised while trying to resolve a column reference'''
 
 
 class TableNotInContext(DbjudgeError):
-    pass
+    '''Exception raised while trying to resolve a specific table in'''
 
 
 class FillerError(DbjudgeError):
     '''Exception raised while filling the database with fake data'''
-    pass
 
 
 class DuplicatedDatabaseError(FillerError):
-    pass
+    '''Exception raised while creating a database with a name already taken'''
 
 
 class MissingDatabaseError(FillerError):
-    pass
+    '''Exception raised while accessing a database that does not exist, or is not part of dbjudge'''
 
 
 class InvalidColumnTypeError(DbjudgeError):
-    pass
+    '''Exception raised when trying to generate data for an unsupported column type'''
 
 
 class InvalidColumnFakeType(DbjudgeError):
-    pass
+    '''Exception raised when trying to generate data for an unsupported custom column type'''
 
 
 class JudgeError(DbjudgeError):
     '''Exception raised while keeping track of user answers'''
-    pass
 
 
 class SessionNotFound(JudgeError):
-    pass
+    '''Exception raised while using the judge without a session'''
