@@ -150,3 +150,46 @@ def test_get_fake_types(database_manager, load_csv_fakes):
     result = database_manager.get_fake_types()
 
     assert(Counter(result) == Counter(expected))
+
+
+def test_custom_insert_without_cursor(database_manager, make_database):
+    name = 'test_insert_nocursor'
+    make_database(name)
+    sql = 'CREATE TABLE {} (test integer);'.format(name)
+    database_manager.select_database(name)
+    database_manager.execute_sql(sql)
+
+    database_manager.custom_insert(name, ('test',), (1,))
+    proof_sql = 'select test from {} where test=1;'.format(name)
+    database_manager.selected_db_connection.commit()
+
+    result = database_manager.execute_in_readonly(proof_sql)
+
+    assert len(result) == 1
+
+
+def test_get_questions(database_manager, make_database):
+    db_name = 'test_get_questions'
+    make_database(db_name)
+    database_manager.select_database(db_name)
+    q1 = 'some question'
+    q2 = 'another one'
+    q3 = 'num3r1c question'
+    a1 = 'an answer'
+    a2 = 'another answer'
+    a3 = 'answer with numbers'
+
+    database_manager.register_question(q1, a1, db_name)
+    database_manager.register_question(q2, a2, db_name)
+    database_manager.register_question(q3, a3, db_name)
+
+    result1 = database_manager.get_questions()
+    result2 = database_manager.get_questions(db_name)
+    expected_result = [(q1,), (q2,), (q3,)]
+
+    assert expected_result[0] in result1
+    assert expected_result[1] in result1
+    assert expected_result[2] in result1
+    assert expected_result[0] in result2
+    assert expected_result[1] in result2
+    assert expected_result[2] in result2
