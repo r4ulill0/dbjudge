@@ -82,7 +82,7 @@ class Analysis:
 
     def _keywords_check(self):
         result = True
-        for keyword, expected in dict():
+        for keyword, expected in self.expected_keywords.items():
             if (keyword in self.used_keywords) and not expected:
                 result = False
 
