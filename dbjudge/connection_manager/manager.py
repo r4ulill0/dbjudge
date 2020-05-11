@@ -170,7 +170,9 @@ class Manager(metaclass=Singleton):
 
     def get_questions(self, database=None):
         if not database:
-            database = self.selected_db_connection.dbname
+            conn_info = self.selected_db_connection.get_dsn_parameters()
+            database = conn_info['dbname']
+
         db_cursor = self.main_connection.cursor()
         db_cursor.execute(queries.GET_QUESTIONS, (database,))
 
