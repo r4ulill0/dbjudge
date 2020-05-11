@@ -37,15 +37,22 @@ def test_generate_report(mocked_judge):
     report = mocked_judge.generate_report()
     question_1, question_2, question_3 = mocked_judge.session.mapped_answers
 
+    assert report[question_1].is_correct()
+    assert report[question_2].is_correct()
+    assert report[question_3].is_correct()
+
     assert report[question_1].correct_result
     assert report[question_2].correct_result
     assert report[question_3].correct_result
+
     assert not report[question_1].excess_tables_used
     assert not report[question_2].excess_tables_used
     assert not report[question_3].excess_tables_used
+
     assert not report[question_1].used_keywords
     assert not report[question_2].used_keywords
     assert not report[question_3].used_keywords
+
     assert report[question_1].answered
     assert report[question_2].answered
     assert report[question_3].answered
@@ -69,6 +76,7 @@ def test_used_keywords_report(mocked_judge):
 
     expected_used_keywords = set(("GROUP", "BY"))
 
+    assert not report[q1].is_correct()
     assert report[q1].correct_result
     assert report[q1].used_keywords == expected_used_keywords
 
@@ -94,3 +102,30 @@ def test_report_without_session():
     with pytest.raises(exceptions.SessionNotFound):
         new_judge = Judge()
         new_judge.generate_report()
+
+
+def test_create_session(mocked_judge):
+    new_judge = Judge()
+    question = 'El nombre de todos los libros'
+    questions = (question,)
+    new_judge.start_session(questions)
+
+    assert new_judge.session is not None
+    assert new_judge.session.mapped_answers[question] is None
+
+
+def test_answer_on_session(mocked_judge):
+    answer = 'mock answer'
+    mocked_judge.session.answer(q1, answer)
+
+    assert mocked_judge.session.mapped_answers[q1] == answer
+
+
+def test_empty_keyword(mocked_judge):
+    answer = 'Select titulo from libro order by titulo'
+    keywords = ('', 'Order', 'by')
+    result = mocked_judge._check_keywords(keywords, answer)
+
+    assert keywords[0] not in result
+    assert keywords[1] in result
+    assert keywords[2] in result
