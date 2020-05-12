@@ -2,7 +2,10 @@ import sqlparse
 
 
 def get_used_tables(query):
-    ''' Returns the tables used in the query after the "FROM" keyword.
+    ''' 
+    Returns the tables used in the query after the "FROM" keyword.
+
+    :param query: valid SQL query
     '''
     from_clause = None
 
@@ -24,9 +27,6 @@ def get_used_tables(query):
                         if definition_element.match(sqlparse.tokens.Name, None):
                             used_tables.append(definition_element.normalized)
         elif from_clause_found and isinstance(token, sqlparse.sql.Identifier):
-            if isinstance(token, sqlparse.sql.Identifier):
-                for definition_element in token:
-                    if definition_element.match(sqlparse.tokens.Name, None):
-                        used_tables.append(definition_element.normalized)
+            used_tables.append(token.normalized)
 
     return set(used_tables)
