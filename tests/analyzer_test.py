@@ -10,3 +10,12 @@ def test_get_used_tables():
     expected_tables = set(("Libro", "Prestamo", "Persona"))
 
     assert tables == expected_tables
+
+
+def test_used_tables_parser():
+    test_query = 'select * from Libro INNER JOIN Prestamo ON Libro.titulo=Prestamo.titulo;'
+    expected_tables = set(('Libro', 'Prestamo'))
+
+    tables = analyzer.get_used_tables(test_query)
+
+    assert tables == expected_tables

@@ -140,3 +140,26 @@ def test_save_to_database_default(database_manager):
     assert len(results) == 5*len(expected_titles)
     for row in results:
         assert row[1] in expected_titles
+
+
+def test_save_to_database(database_manager):
+    csv_file_path = 'tests/csv_files/save_to_database_test.csv'
+
+    loaded_data = custom_loader.load_csv_fakes(csv_file_path)
+
+    expected_titles = ('type0', 'type1', 'type2')
+    custom_loader.save_to_database(
+        loaded_data, selected_columns=(0, 1, 2), selected_names=expected_titles)
+    reader = database_manager.main_connection.cursor()
+
+    assertion_query = ''' SELECT data, fake_type
+                        FROM dbjudge_fake_data
+                        WHERE fake_type like '{}'
+                            or fake_type like '{}'
+                            or fake_type like '{}';
+    '''.format(*expected_titles)
+    reader.execute(assertion_query)
+
+    results = reader.fetchall()
+
+    assert len(results) == 15
