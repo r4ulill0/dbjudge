@@ -58,7 +58,6 @@ def map_slices(slices):
             elif isinstance(token, sqlparse.sql.Where):
                 where_clause = token
                 parsing_from = False
-                break
 
         for token in where_clause.tokens:
             if isinstance(token, sqlparse.sql.Comparison):
