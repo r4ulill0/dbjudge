@@ -147,6 +147,7 @@ def test_create_question(test_query, database_manager, make_database):
 def test_slicer_find_table_without_tables():
     table_aliases = {'a': 'something', 'b': 'otherthing'}
 
-    result_with_empty_list = slicer._find_table([], table_aliases)
+    result_with_empty_list = slicer._find_table(
+        ['empty', 'names'], table_aliases)
 
     assert not result_with_empty_list
