@@ -170,10 +170,7 @@ class Faker:
         return formatted_result
 
     def _format_interval(self, fake):
-        adapter = IntervalFromPy(fake)
-        binary_string = adapter.getquoted()
-        formatted_result = binary_string.decode("UTF-8")
-
+        formatted_result = '{} d {} s'.format(fake.days, fake.seconds)
         return formatted_result
 
     def generate_fake(self, table):

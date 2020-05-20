@@ -116,5 +116,6 @@ def update_context_instances(context, cursor=None):
             )
             cursor.execute(transaction)
             instances = cursor.fetchall()
+            cursor.connection.commit()
             for instance in instances:
-                column.column_instances.add(instance)
+                column.column_instances.append(instance)

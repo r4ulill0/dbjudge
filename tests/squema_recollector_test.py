@@ -2,6 +2,7 @@ import pytest
 import psycopg2
 import conftest
 from dbjudge import squema_recollector
+from dbjudge import filler
 from dbjudge.structures.context import Context
 from dbjudge.structures.table import Table
 from dbjudge.structures.column import Column
@@ -91,7 +92,8 @@ def test_load_columns_references(database_cursor, context_with_tables_and_column
 def test_format_primary_key():
     simulated_query_response = [('data_1',), ('data_2',)]
 
-    formated_data = squema_recollector._format_primary_key(simulated_query_response)
+    formated_data = squema_recollector._format_primary_key(
+        simulated_query_response)
 
     assert formated_data == ('data_1', 'data_2')
 
@@ -99,6 +101,24 @@ def test_format_primary_key():
 def test_load_table_uniques(database_cursor, context_with_tables_and_columns):
     fake_table = Table('persona', 'fake_pk')
 
-    uniques = squema_recollector._load_table_uniques(fake_table, database_cursor)
+    uniques = squema_recollector._load_table_uniques(
+        fake_table, database_cursor)
 
     assert uniques == set(['userid', 'dni'])
+
+
+def test_update_context_instances(db_empty_table, database_manager):
+    context = squema_recollector.create_context(
+        database_manager.main_connection)
+    for table in context.tables:
+        table.fake_data_size = 5
+    filler.generate_fake_data(
+        context, database_manager.main_connection)
+    db_cursor = database_manager.main_connection.cursor()
+
+    squema_recollector.update_context_instances(
+        context, db_cursor)
+
+    for table in context.tables:
+        for _, column in table.columns.items():
+            assert len(column.column_instances) == 5

@@ -15,15 +15,15 @@ from dbjudge.structures.fake_types import Regex
 
 @pytest.fixture
 def table():
-    table = Table("somename","pk")
-    return table
+    mock_table = Table("somename", "pk")
+    return mock_table
 
 @pytest.fixture
 def faker(table):
     context = Context()
     context.add_table(table)
-    faker = Faker(table, context)
-    return faker
+    mock_faker = Faker(table, context)
+    return mock_faker
 
 @pytest.fixture
 def references_faker(faker, instances_pool):
@@ -63,7 +63,7 @@ def test_format_interval(faker):
     interval = datetime.timedelta(days=days, seconds=seconds)
     
     formatted_output = faker._format_interval(interval)
-    expected_output = "'23 days 45.000000 seconds'::interval"
+    expected_output = "23 d 45 s"
 
     assert formatted_output == expected_output
 
@@ -384,3 +384,11 @@ def test_list_values(faker, table):
     
     for idx, key in enumerate(table.columns.keys()):
         assert output[idx] == unordered_values[key]
+
+def test_generate_fake_invalid_column(faker, table):
+    with pytest.raises(exceptions.InvalidColumnTypeError):
+        column = Column('pk', 'character')
+        column._ctype = 'invalid_ctype'
+        table.add_column(column)
+
+        faker._generate_fake(column)

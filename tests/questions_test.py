@@ -142,3 +142,11 @@ def test_create_question(test_query, database_manager, make_database):
     assert results[0][0] == question
     assert results[0][1] == test_query
     assert len(results2) > 0
+
+
+def test_slicer_find_table_without_tables():
+    table_aliases = {'a': 'something', 'b': 'otherthing'}
+
+    result_with_empty_list = slicer._find_table([], table_aliases)
+
+    assert not result_with_empty_list

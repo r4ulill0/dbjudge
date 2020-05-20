@@ -4,6 +4,11 @@ import pytest
 from dbjudge.connection_manager.manager import Manager
 from dbjudge.custom_fakes import custom_loader
 from dbjudge.custom_fakes.custom_generator import Custom_cache
+from dbjudge.structures.table import Table
+from dbjudge.structures.column import Column
+
+EXAMPLE_DATABASE_FILE = 'tests/sql_files/exampleDatabase.sql'
+DROP_EXAMPLE_DATABASE_FILE = 'tests/sql_files/dbjudge_tables_dropper.sql'
 
 
 @pytest.fixture(scope="session")
@@ -11,7 +16,7 @@ def database_connection():
     conn = psycopg2.connect(host="127.0.0.1",
                             dbname="tfg_test", user="conexion", password="plsL3tM3in")
     writer = conn.cursor()
-    writer.execute(open('tests/sql_files/exampleDatabase.sql').read())
+    writer.execute(open(EXAMPLE_DATABASE_FILE).read())
     writer.close()
     conn.commit()
     yield conn
@@ -25,7 +30,7 @@ def database_manager():
                       host='127.0.0.1', database_name='tfg_test')
     yield manager
     writer = manager.main_connection.cursor()
-    writer.execute(open('tests/sql_files/dbjudge_tables_dropper.sql').read())
+    writer.execute(open(DROP_EXAMPLE_DATABASE_FILE).read())
     writer.close()
     manager.main_connection.commit()
     del manager
@@ -92,3 +97,43 @@ def make_database(database_manager):
 
     for db in reversed(created_dbs):
         database_manager.delete_database(db)
+
+
+@pytest.fixture
+def reset_main_db(database_manager):
+    writer = database_manager.main_connection.cursor()
+    writer.execute(open(DROP_EXAMPLE_DATABASE_FILE).read())
+    database_manager.main_connection.commit()
+    writer.execute(open(EXAMPLE_DATABASE_FILE).read())
+    database_manager.main_connection.commit()
+    writer.close()
+
+
+@pytest.fixture
+def db_empty_table(database_connection):
+    created_tables = []
+
+    writer = database_connection.cursor()
+
+    def _create_table(name):
+        table = Table(name, ('id',))
+        column = Column('id', 'character varying', unique=True)
+        table.add_column(column)
+
+        query = 'CREATE TABLE {}(id varchar, PRIMARY KEY (id));'.format(name)
+        writer.execute(query)
+        database_connection.commit()
+        created_tables.append(name)
+        return table
+
+    yield _create_table
+
+    for name in reversed(created_tables):
+        database_connection.commit()
+        database_connection.autocommit = True
+        cleaning_query = psycopg2.sql.SQL('DROP TABLE IF EXISTS {};').format(
+            psycopg2.sql.Identifier(name)
+        )
+        writer.execute(cleaning_query)
+        database_connection.autocommit = False
+    writer.close()

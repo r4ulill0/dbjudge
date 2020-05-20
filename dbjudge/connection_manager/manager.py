@@ -133,18 +133,28 @@ class Manager(metaclass=Singleton):
         writer.execute(query)
 
     def custom_insert(self, table_name, columns_names, values, db_cursor=None):
+        '''
+        Execute an insert on the selected database.
+        '''
         if not db_cursor:
             db_cursor = self.selected_db_connection.cursor()
+        success = True
+        db_cursor.execute("SAVEPOINT insert_save")
+        try:
+            query_template = "INSERT INTO {} ({}) VALUES ({});"
+            insert_query = sql.SQL(query_template).format(
+                sql.Identifier(table_name),
+                sql.SQL(',').join(map(sql.Identifier, columns_names)),
+                sql.SQL(',').join(sql.Placeholder() * len(values))
+            )
+            db_cursor.execute(insert_query, values)
+        except Exception:
+            db_cursor.execute('ROLLBACK TO SAVEPOINT insert_save')
+            success = False
+        finally:
+            db_cursor.execute('RELEASE SAVEPOINT insert_save')
 
-        query_template = "INSERT INTO {} ({}) VALUES ({});"
-
-        insert_query = sql.SQL(query_template).format(
-            sql.Identifier(table_name),
-            sql.SQL(',').join(map(sql.Identifier, columns_names)),
-            sql.SQL(',').join(sql.Placeholder() * len(values))
-        )
-
-        db_cursor.execute(insert_query, values)
+        return success
 
     def register_question(self, question, query, database, keywords=None):
         '''Register a question in the main database.

@@ -8,6 +8,7 @@ class Column:
         self.name = name
         self.ctype = ctype
         self.constraint = ""
+        self.column_instances = []
         self.reference = []
         self.nullable = nullable
         self.unique = unique
