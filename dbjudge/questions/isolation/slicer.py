@@ -1,7 +1,23 @@
+""" Module to slice queries into manageable fragments
+"""
 import sqlparse
 
 
 def slice_sql(query):
+    """Slice a complex query into simple ones.
+    This complexity only takes into account the where clause.
+    Constraints with 'OR' keyword are considered one single constraint.
+
+    SELECT * FROM T WHERE X and Y and Z;
+    SELECT * FROM T WHERE X;
+    SELECT * FROM T WHERE Y;
+    SELECT * FROM T WHERE Z;
+
+    :param query: SQL query
+    :type query: string
+    :return: Simple queries that together are equivalent to the original.
+    :rtype: list
+    """
     output_queries = []
     parsed_query = sqlparse.parse(query)
 
@@ -38,9 +54,14 @@ def slice_sql(query):
 
 
 def map_slices(slices):
-    '''
-    Map SQL query slices to its corresponding table. Only "WHERE" restrictions tables are mapped.
-    '''
+    """Relate SQL query slices to its corresponding table.
+    Only "WHERE" restrictions tables are mapped.
+
+    :param slices: Multiple SQL queries
+    :type slices: Iterable of SQL strings
+    :return: Dictionary relating tables with queries that use them
+    :rtype: dict
+    """
     mapping = {}
 
     for query in slices:
