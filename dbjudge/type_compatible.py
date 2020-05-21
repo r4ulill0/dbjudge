@@ -1,3 +1,5 @@
+"""Supported database types."""
+
 ACCEPTED_STRING_DB_TYPES = (
     'character',
     'character varying',
@@ -20,34 +22,50 @@ BYTES_OF = {
 
 
 def is_string(db_type):
+    """Return True if the database type is a string supported type supported, False otherwise.
+    """
     return db_type in ACCEPTED_STRING_DB_TYPES
 
 
 def is_integer(db_type):
+    """Return True if the database type is an integer supported type, False otherwise.
+    """
     return db_type in ACCEPTED_INTEGER_DB_TYPES
 
 
 def is_float(db_type):
+    """Return True if the database type is a float supported type, False otherwise.
+    """
     return db_type in ACCEPTED_FLOAT_DB_TYPES
 
 
 def is_interval(db_type):
+    """Return True if the database type is a interval supported type, False otherwise.
+    """
     return db_type in ACCEPTED_INTERVAL_DB_TYPES
 
 
 def is_boolean(db_type):
+    """Return True if the database type is a boolean supported type, False otherwise.
+    """
     return db_type in ACCEPTED_BOOLEAN_DB_TYPES
 
 
 def is_date(db_type):
+    """Return True if the database type is a date supported type, False otherwise.
+    """
     return db_type in ACCEPTED_DATE_DB_TYPES
 
 
 def bytes_limit(db_type):
+    """Returns the bytes limit of a specific database type. Only integer types are supported.
+    """
     return BYTES_OF[db_type]
 
 
 def is_valid(db_type):
+    """Return True if the database type is supported, False otherwise.
+    """
     valid = is_string(db_type)\
         or is_integer(db_type)\
         or is_float(db_type)\
