@@ -1,3 +1,4 @@
+"""Question generation module."""
 import time
 from dbjudge.connection_manager.manager import Manager
 from dbjudge.fake_data_gen import Faker
@@ -9,6 +10,15 @@ TIMEOUT_PER_QUERY = 20
 
 
 def create_question(database, query, question):
+    """Creates a question and stores it in db_judge database.
+    It also tries to generate enough different data to make the judge more reliable.
+
+    :param database: target database
+    :param query: Correct answer, it has to be a valid SQL query for the target database.
+    :type query: string
+    :param question: Question about database data.
+    :type question: string
+    """
     Manager.singleton_instance.select_database(database)
     connection = Manager.singleton_instance.selected_db_connection
     context = squema_recollector.create_context(connection)
@@ -57,7 +67,7 @@ def _generate_table_data(context, table, query_list):
             len_after_insert = len(results)
 
             # No new results found means that boolean value of the expression is false
-            bool_state = not (len_after_insert - len_before_insert == 0)
+            bool_state = not len_after_insert - len_before_insert == 0
             db_cursor.connection.rollback()
             check_row.append(bool_state)
 
