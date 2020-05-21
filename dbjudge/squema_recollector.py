@@ -1,3 +1,8 @@
+'''Tools to create a Context from a created database.
+
+This module analyze the tables and columns from a database
+and stores a basic structure of the database model in a Context object.
+'''
 from psycopg2 import sql
 
 from dbjudge.connection_manager.manager import Manager
@@ -10,10 +15,13 @@ from dbjudge.utils import queries
 
 
 def create_context(conn):
+    """Creates a context with the basic information about a database relational model.
 
+    :param conn: Target database connection.
+    :return: Database context.
+    """
     database_cursor = conn.cursor()
     context = Context()
-
     _load_tables(context, database_cursor)
 
     for table in context.tables:
@@ -60,7 +68,7 @@ def _load_table_columns(table, database_cursor):
         new_column = Column(column_name, column_type,
                             column_nullable, column_unique)
 
-        if (column_char_len != None):
+        if column_char_len:
             new_column.max_char_len = column_char_len
 
         table.add_column(new_column)
@@ -81,7 +89,7 @@ def _load_columns_references(context, database_cursor):
     for table in context.tables:
         database_cursor.execute(queries.REFERENCE_QUERY, (table.name,))
         references = database_cursor.fetchall()
-        if (len(references) == 0):
+        if not references:
             continue
 
         last_key = ''
@@ -95,7 +103,7 @@ def _load_columns_references(context, database_cursor):
             source_table = context.get_table_by_name(source_table_name)
             target_table = context.get_table_by_name(target_table_name)
 
-            if(key != last_key):
+            if key != last_key:
                 foreign_key = ForeignKey(source_table, target_table)
                 table.foreign_keys.append(foreign_key)
 
@@ -106,6 +114,12 @@ def _load_columns_references(context, database_cursor):
 
 
 def update_context_instances(context, cursor=None):
+    """Updates a context with the most recent rows found.
+
+    :param context: Target database context.
+    :param cursor: Database connection cursor,
+        defaults to the selected database on the connection manager.
+    """
     if not cursor:
         cursor = Manager.singleton_instance.selected_db_connection.cursor()
     for table in context.tables:
