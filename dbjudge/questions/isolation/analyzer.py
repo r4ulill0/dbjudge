@@ -1,13 +1,13 @@
+'''Tools for sql parsing purposes'''
 import sqlparse
 
 
 def get_used_tables(query):
-    ''' 
+    '''
     Returns the tables used in the query after the "FROM" keyword.
 
     :param query: valid SQL query
     '''
-    from_clause = None
 
     used_tables = []
     parsed_query = sqlparse.parse(query)
