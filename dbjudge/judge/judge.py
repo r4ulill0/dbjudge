@@ -1,17 +1,33 @@
+"""Judge module responsible of testing if user answers are correct
+based on preloaded correct answers."""
 from dbjudge import exceptions
 from dbjudge.connection_manager.manager import Manager
 from dbjudge.questions.isolation import analyzer
 
 
 class Judge:
+    """Judge object that manage user tests sessions.
+    """
+
     def __init__(self):
         self.session = None
 
     def start_session(self, questions):
+        """Starts a new test session.
+
+        :param questions: Questions to answer on this session.
+        :type questions: Iterable of SQL strings
+        """
         self.session = Session(questions)
 
     def generate_report(self):
-        '''Keywords are not case sensitive'''
+        """Generates a report with information about the current session.
+        Each question has its own analisys.
+        Keywords analisys is not case sensitive.
+
+        :return: Report with an analisys to every question, even if it is unanswered.
+        :rtype: dict
+        """
         if not self.session:
             raise exceptions.SessionNotFound()
 
@@ -59,17 +75,30 @@ class Judge:
 
 
 class Session:
+    """Test session that stores answers to each question on it."""
+
     def __init__(self, questions):
         self.mapped_answers = {}
         for question in questions:
             self.mapped_answers[question] = None
 
     def answer(self, question, answer):
+        """Stores an answer inside the session.
+
+        :param question: question
+        :type question: string
+        :param answer: An SQL query that answers the question
+        :type answer: string
+        """
         self.mapped_answers[question] = answer
 
 
 class Analysis:
-    def __init__(self, correct_result, excess_tables_used, used_keywords, expected_keywords, answered):
+    """Analysis about a question answer.
+    """
+
+    def __init__(self, correct_result, excess_tables_used, used_keywords,
+                 expected_keywords, answered):
         self.excess_tables_used = excess_tables_used
         self.used_keywords = used_keywords
         self.expected_keywords = expected_keywords
@@ -78,6 +107,10 @@ class Analysis:
         self.correct_result = correct_result
 
     def is_correct(self):
+        """Returns True if the answer is considered correct, False otherwise.
+
+        :rtype: boolean
+        """
         return self.correct_result and self.keyword_compliant
 
     def _keywords_check(self):
