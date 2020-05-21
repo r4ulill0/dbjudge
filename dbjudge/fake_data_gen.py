@@ -1,8 +1,8 @@
+"""Fake data generator. This module can generate random database data."""
 import random
 import string
 import datetime
 import decimal
-from psycopg2.extensions import IntervalFromPy
 
 from dbjudge.structures.fake_types import Fake_type
 from dbjudge.custom_fakes import custom_generator
@@ -11,6 +11,9 @@ from dbjudge import type_compatible
 
 
 class Faker:
+    """A Faker object can generate random database data for a specific context.
+    """
+
     def __init__(self, table, context, pool_size=100):
         if table not in context.tables:
             raise exceptions.TableNotInContext(
@@ -26,7 +29,7 @@ class Faker:
     def _generate_data_pool(self, column, size):
         pool = set()
 
-        if (len(column.reference) != 0 and column.reference[0] != None):
+        if column.reference and column.reference[0] is not None:
             pool = self._fetch_foreing_key_pool(column.reference[0])
 
         else:
@@ -93,7 +96,7 @@ class Faker:
             raise exceptions.InvalidColumnTypeError()
 
     def _gen_string(self, max_len):
-        max_string_len = max_len if max_len != None else 10
+        max_string_len = max_len if max_len is not None else 10
         result = ""
         string_len = random.randint(1, max_string_len)
         for _ in range(string_len):
@@ -174,12 +177,18 @@ class Faker:
         return formatted_result
 
     def generate_fake(self, table):
+        """Generates data for an insert into a table from the Faker context.
 
+        :param table: Table in the Context.
+        :type table: Table.
+        :return: Values, compatible with table columns.
+        :rtype: list.
+        """
         values_dict = {}
         while not self._valid_primary_key(table, values_dict):
             values_dict = {}
 
-            if len(table.foreign_keys) != 0:
+            if table.foreign_keys:
                 for foreign_key in table.foreign_keys:
                     row_instance = random.choice(
                         foreign_key.target_table.row_instances)
