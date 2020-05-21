@@ -1,16 +1,17 @@
-import os
+"""This module is capable of fill a database with fake data."""
 import time
-import psycopg2
-from psycopg2 import sql
-
-from dbjudge.structures.context import Context
-from dbjudge.structures.table import Table
-from dbjudge.structures.column import Column
 from dbjudge import fake_data_gen
 from dbjudge.connection_manager.manager import Manager
 
 
 def generate_fake_data(context, db_connection):
+    """Fills a database with random data.
+    The given context has to define the database that the connection reference to.
+
+    :param context: Target database context
+    :type context: Context
+    :param db_connection: Target database connection
+    """
     db_cursor = db_connection.cursor()
 
     for table in context.tables:
