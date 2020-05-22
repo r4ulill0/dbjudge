@@ -1,8 +1,16 @@
+"""Tools to create new data types."""
 import csv
 from dbjudge.connection_manager.manager import Manager
 
 
 def load_csv_fakes(csv_file_path):
+    """Load in memory a csv file
+
+    :param csv_file_path: path to the file
+    :type csv_file_path: string
+    :return: multiple rows read from the file
+    :rtype: list
+    """
     with open(csv_file_path) as csv_file:
 
         reader = csv.reader(csv_file)
