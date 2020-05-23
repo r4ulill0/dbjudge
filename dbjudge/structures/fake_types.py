@@ -1,4 +1,4 @@
-"""Avaiable data types for data generation."""
+"""available data types for data generation."""
 
 from enum import Enum
 

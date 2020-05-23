@@ -123,7 +123,7 @@ def test_gen_interval(faker):
     
     assert isinstance(output, datetime.timedelta)
 
-def test_generate_fake_with_no_uniques_avaiable(faker):
+def test_generate_fake_with_no_uniques_available(faker):
     table = Table('uniques_table', ('unique_col',))
     column = Column('unique_col','character varying',unique=True)
     table.add_column(column)
