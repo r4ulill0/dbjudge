@@ -219,7 +219,7 @@ class Manager(metaclass=Singleton):
 
         return success
 
-    def register_question(self, question, query, database, keywords=None):
+    def register_question(self, question, query, database, keywords_allowance=None):
         """Register a question in the main database.
 
         :param question: Question about target database.
@@ -238,8 +238,8 @@ class Manager(metaclass=Singleton):
         self.main_connection.commit()
 
         question_id = db_cursor.fetchall()[0]
-        if keywords:
-            for keyword, expected in keywords.items():
+        if keywords_allowance:
+            for keyword, expected in keywords_allowance.items():
                 db_cursor.execute(queries.REGISTER_KEYWORD_SELECTION,
                                   (question_id, keyword, expected))
             self.main_connection.commit()
