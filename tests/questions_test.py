@@ -1,7 +1,7 @@
 import pytest
 from dbjudge import squema_recollector
 from dbjudge.questions.isolation import slicer
-from dbjudge.questions.generation.constraints_truth_table import Truth_table
+from dbjudge.questions.generation.constraints_truth_table import TruthTable
 from dbjudge.questions.generation import generator
 
 
@@ -77,7 +77,7 @@ def test_truth_table_creation():
     repeated_row = (True, True)
     wrong_row = (True, False, True)
     mock_query_list = [None, None]
-    table = Truth_table(mock_query_list)
+    table = TruthTable(mock_query_list)
 
     table.add(row1)
     table.add(row2)

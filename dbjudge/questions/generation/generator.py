@@ -3,7 +3,7 @@ import time
 from dbjudge.connection_manager.manager import Manager
 from dbjudge.fake_data_gen import Faker
 from dbjudge.questions.isolation import slicer
-from dbjudge.questions.generation.constraints_truth_table import Truth_table
+from dbjudge.questions.generation.constraints_truth_table import TruthTable
 from dbjudge import squema_recollector
 
 TIMEOUT_PER_QUERY = 20
@@ -47,7 +47,7 @@ def _generate_table_data(context, table, query_list):
     db_cursor = Manager.singleton_instance.selected_db_connection.cursor()
 
     final_data = []
-    truth_table = Truth_table(query_list)
+    truth_table = TruthTable(query_list)
     completed_data_generation = False
     start_time = time.process_time()
     while not completed_data_generation:

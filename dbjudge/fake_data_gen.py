@@ -48,7 +48,8 @@ class Faker:
         pool = column.instances_pool
         return pool
 
-    def _is_pool_big_enough(self, actual_size, target_size, column):
+    @classmethod
+    def _is_pool_big_enough(cls, actual_size, target_size, column):
         response = (actual_size >= target_size
                     or (type_compatible.is_boolean(column.ctype) and actual_size >= 2)
                     or (type_compatible.is_string(column.ctype)
@@ -95,7 +96,8 @@ class Faker:
         else:
             raise exceptions.InvalidColumnTypeError()
 
-    def _gen_string(self, max_len):
+    @classmethod
+    def _gen_string(cls, max_len):
         max_string_len = max_len if max_len is not None else 10
         result = ""
         string_len = random.randint(1, max_string_len)
@@ -103,7 +105,8 @@ class Faker:
             result += random.choice(string.ascii_letters)
         return result
 
-    def _gen_integer(self, bytes_limit, bottom_limit, top_limit):
+    @classmethod
+    def _gen_integer(cls, bytes_limit, bottom_limit, top_limit):
         max_num_generated_with_bytes = (2**(bytes_limit*8))/2
         bottom = -max_num_generated_with_bytes
         top = max_num_generated_with_bytes - 1
@@ -113,11 +116,13 @@ class Faker:
 
         return result
 
-    def _gen_boolean(self):
+    @classmethod
+    def _gen_boolean(cls):
         result = bool(random.getrandbits(1))
         return result
 
-    def _gen_decimal(self, decimal_positions, min_value, max_value):
+    @classmethod
+    def _gen_decimal(cls, decimal_positions, min_value, max_value):
         default_max = decimal.Decimal('9999999.9999999')
         default_min = decimal.Decimal('-9999999.9999999')
         max_value = max_value if max_value else default_max
@@ -138,7 +143,8 @@ class Faker:
             round(result, decimal_positions)
         return result
 
-    def _gen_datetime(self, min_date, max_date):
+    @classmethod
+    def _gen_datetime(cls, min_date, max_date):
         min_date = min_date if min_date else datetime.datetime.min
         max_date = max_date if max_date else datetime.datetime.max
         max_ordinal = max_date.toordinal()
@@ -158,7 +164,8 @@ class Faker:
 
         return result
 
-    def _gen_interval(self):
+    @classmethod
+    def _gen_interval(cls):
         seconds_in_day = 3600*24
         seconds = random.randint(0, seconds_in_day)
         days = random.randint(-999999999, 999999999)
@@ -167,12 +174,14 @@ class Faker:
 
         return result
 
-    def _wrap_with_quote_marks(self, fake):
+    @classmethod
+    def _wrap_with_quote_marks(cls, fake):
         envelope_particle = "\'"
         formatted_result = envelope_particle + str(fake) + envelope_particle
         return formatted_result
 
-    def _format_interval(self, fake):
+    @classmethod
+    def _format_interval(cls, fake):
         formatted_result = '{} d {} s'.format(fake.days, fake.seconds)
         return formatted_result
 
@@ -217,7 +226,8 @@ class Faker:
 
         return values
 
-    def _valid_primary_key(self, table, values: dict):
+    @classmethod
+    def _valid_primary_key(cls, table, values: dict):
         pk_column_names = table.primary_key
         is_correct_pk = True
         is_value_filled = len(table.columns) == len(values.keys())
@@ -244,7 +254,8 @@ class Faker:
         condition = len(table.row_instances) == 0 or len(diff) > 0
         return condition
 
-    def _exists_in_instance(self, fake, table, column):
+    @classmethod
+    def _exists_in_instance(cls, fake, table, column):
         exists = False
 
         for instance in table.row_instances:
@@ -254,7 +265,8 @@ class Faker:
 
         return exists
 
-    def _list_values(self, dictionary, table):
+    @classmethod
+    def _list_values(cls, dictionary, table):
         ordered_list = []
         for column_name in table.columns.keys():
             ordered_list.append(dictionary[column_name])

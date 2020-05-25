@@ -52,7 +52,7 @@ def test_gen_regex():
 
 
 def test_custom_fake_cache(load_csv_fakes):
-    cache = custom_generator.Custom_cache('woman_names')
+    cache = custom_generator.CustomCache('woman_names')
 
     initial_size = len(cache.cached_data)
     cache.cached_data.clear()

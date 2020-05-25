@@ -1,7 +1,7 @@
 """Tools to manage constraints permutations of complex queries."""
 
 
-class Truth_table():
+class TruthTable():
     """Truth table object to keep track of permutations of boolean states.
     """
 

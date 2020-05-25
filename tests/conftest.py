@@ -3,7 +3,7 @@ import pytest
 
 from dbjudge.connection_manager.manager import Manager
 from dbjudge.custom_fakes import custom_loader
-from dbjudge.custom_fakes.custom_generator import Custom_cache
+from dbjudge.custom_fakes.custom_generator import CustomCache
 from dbjudge.structures.table import Table
 from dbjudge.structures.column import Column
 
@@ -72,11 +72,11 @@ def load_csv_fakes(database_manager):
 @pytest.fixture
 def reset_cache():
     def _reset_cache(fake_type):
-        if (not hasattr(Custom_cache, 'singleton_instance')):
-            Custom_cache(fake_type)
+        if (not hasattr(CustomCache, 'singleton_instance')):
+            CustomCache(fake_type)
         else:
-            Custom_cache.singleton_instance.fake_type = fake_type
-            Custom_cache.singleton_instance._update_data()
+            CustomCache.singleton_instance.fake_type = fake_type
+            CustomCache.singleton_instance._update_data()
     return _reset_cache
 
 

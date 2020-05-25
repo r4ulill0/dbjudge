@@ -8,7 +8,7 @@ from dbjudge.utils.metaclasses import Singleton
 from dbjudge.exceptions import InvalidColumnFakeType
 
 
-class Custom_cache(metaclass=Singleton):
+class CustomCache(metaclass=Singleton):
     """Cache object to reduce the amount of times
     preloaded data needs to be gathered.
     """
@@ -64,7 +64,7 @@ def _gen_regex(regex, max_len):
 
 
 def _gen_custom_fake(fake_type):
-    cache = Custom_cache(fake_type)
+    cache = CustomCache(fake_type)
     cache.check_cache(fake_type)
     data = cache.cached_data
 

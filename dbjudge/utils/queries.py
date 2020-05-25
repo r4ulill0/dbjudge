@@ -1,3 +1,4 @@
+"""Common SQL queries used by dbjudge"""
 
 TABLES_QUERY = '''
     with recursive fk_tree as (
