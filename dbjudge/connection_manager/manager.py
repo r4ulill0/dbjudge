@@ -303,8 +303,8 @@ class Manager(metaclass=Singleton):
 
         :param query: SQL query.
         :type query: string
-        :return: success
-        :rtype: bool
+        :return: result
+        :rtype: list
         """
         self.selected_db_connection.set_session(readonly=True)
 
