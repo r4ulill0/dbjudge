@@ -44,7 +44,6 @@ def create_question(database, query, question):
 
 def _generate_table_data(context, table, query_list):
     table_faker = Faker(table, context)
-    db_cursor = Manager.singleton_instance.selected_db_connection.cursor()
 
     final_data = []
     truth_table = TruthTable(query_list)
@@ -54,22 +53,7 @@ def _generate_table_data(context, table, query_list):
         fake_data = table_faker.generate_fake(table)
 
         check_row = []
-        for check in query_list:
-            db_cursor.execute(check)
-            results = db_cursor.fetchall()
-            len_before_insert = len(results)
-
-            Manager.singleton_instance.custom_insert(
-                table.name, table.columns.keys(), fake_data, db_cursor)
-
-            db_cursor.execute(check)
-            results = db_cursor.fetchall()
-            len_after_insert = len(results)
-
-            # No new results found means that boolean value of the expression is false
-            bool_state = not len_after_insert - len_before_insert == 0
-            db_cursor.connection.rollback()
-            check_row.append(bool_state)
+        check_row = truth_table.check_row_state(table, query_list, fake_data)
 
         inmutable_check_row = tuple(check_row)
 
