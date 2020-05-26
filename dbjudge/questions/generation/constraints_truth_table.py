@@ -30,8 +30,7 @@ class TruthTable():
         return len(self.table) == self.table_size
 
     def check_row_state(self, table, query_list, fake_data):
-        """Return a row state from a combination of fake data appearances
-        in the results of multiple queries.
+        """Checks if the row state exists in the table and adds it if it does not exist.
 
         :param query_list: A list of SQL queries
         :type query_list: list
@@ -39,24 +38,31 @@ class TruthTable():
         :type fake_data: list
         :param table: Target database table
         :type table: Table
-        :return: Appearances in queries, True if it appears False otherwise
+        :return: True if a new row is added to the table, False otherwise.
         :rtype: list
         """
-        db_manager = Manager.singleton_instance
+        db_cursor = Manager.singleton_instance.selected_db_connection.cursor()
         check_row = []
         for check in query_list:
-            results = db_manager.execute_sql(check)
-            len_before_insert = len(results) if results else 0
+            db_cursor.execute(check)
+            results = db_cursor.fetchall()
+            len_before_insert = len(results)
 
             Manager.singleton_instance.custom_insert(
                 table.name, table.columns.keys(), fake_data)
 
-            results = db_manager.execute_sql(check)
-            len_after_insert = len(results) if results else 0
+            db_cursor.execute(check)
+            results = db_cursor.fetchall()
+            len_after_insert = len(results)
 
             # No new results found means that boolean value of the expression is false
             bool_state = not len_after_insert - len_before_insert == 0
-            db_manager.selected_db_connection.rollback()
+            db_cursor.connection.rollback()
             check_row.append(bool_state)
 
-        return check_row
+        result = tuple(check_row)
+        is_new_row = result not in self.table
+        if is_new_row:
+            self.add(result)
+
+        return is_new_row

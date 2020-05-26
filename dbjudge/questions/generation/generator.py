@@ -52,14 +52,11 @@ def _generate_table_data(context, table, query_list):
     while not completed_data_generation:
         fake_data = table_faker.generate_fake(table)
 
-        check_row = []
-        check_row = truth_table.check_row_state(table, query_list, fake_data)
+        is_new_row = truth_table.check_row_state(table, query_list, fake_data)
 
-        inmutable_check_row = tuple(check_row)
-
-        if inmutable_check_row not in truth_table.table:
+        if is_new_row:
             final_data.append(fake_data)
-            truth_table.add(inmutable_check_row)
+
         completed_data_generation = truth_table.is_completed()
 
         if time.process_time() - start_time > TIMEOUT_PER_QUERY*len(query_list):
