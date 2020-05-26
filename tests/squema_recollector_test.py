@@ -69,11 +69,11 @@ def test_load_columns_references(database_cursor, context_with_tables_and_column
 
     referencing_table = context.tables[2]
 
-    persona_reference = referencing_table.foreign_keys[0].get_column_references()[
+    persona_reference = referencing_table.foreign_keys[0].references[
         0]
-    titulo_reference = referencing_table.foreign_keys[1].get_column_references()[
+    titulo_reference = referencing_table.foreign_keys[1].references[
         0]
-    autor_reference = referencing_table.foreign_keys[1].get_column_references()[
+    autor_reference = referencing_table.foreign_keys[1].references[
         1]
 
     assert referencing_table.foreign_keys[0].source_table.name == 'prestamo'

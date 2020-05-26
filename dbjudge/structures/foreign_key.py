@@ -9,6 +9,21 @@ class ForeignKey:
         self.target_table = target_table
         self._references = []
 
+    @property
+    def references(self):
+        """References attribute
+        """
+        return self._references
+
+    @references.getter
+    def get_references(self):
+        """References attribute getter
+
+        :return: References between tables
+        :rtype: list
+        """
+        return self._references
+
     def add_column_reference(self, reference):
         """Add a column reference to the foreign key.
 
@@ -16,7 +31,3 @@ class ForeignKey:
         :type reference: Reference
         """
         self._references.append(reference)
-
-# TODO modify with @property as in column ctype following python standard use
-    def get_column_references(self):
-        return self._references

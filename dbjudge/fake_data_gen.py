@@ -4,7 +4,7 @@ import string
 import datetime
 import decimal
 
-from dbjudge.structures.fake_types import Fake_type
+from dbjudge.structures.fake_types import FakeType
 from dbjudge.custom_fakes import custom_generator
 from dbjudge import exceptions
 from dbjudge import type_compatible
@@ -60,7 +60,7 @@ class Faker:
 
     def _generate_fake(self, column):
         if type_compatible.is_string(column.ctype):
-            if column.fake_type.category != Fake_type.default:
+            if column.fake_type.category != FakeType.default:
                 fake = custom_generator.gen_string(column)
             else:
                 fake = self._gen_string(column.max_char_len)
@@ -202,7 +202,7 @@ class Faker:
                     row_instance = random.choice(
                         foreign_key.target_table.row_instances)
 
-                    for reference in foreign_key.get_column_references():
+                    for reference in foreign_key.references:
                         values_dict[reference.source] = row_instance[reference.target]
 
             for _, column in table.columns.items():

@@ -3,7 +3,7 @@
 from enum import Enum
 
 
-class Fake_type(Enum):
+class FakeType(Enum):
     """Fake type category.
     """
     default = 0
@@ -16,7 +16,7 @@ class Default:
     """
 
     def __init__(self):
-        self.category = Fake_type.default
+        self.category = FakeType.default
 
 
 class Regex:
@@ -24,7 +24,7 @@ class Regex:
     """
 
     def __init__(self, expression):
-        self.category = Fake_type.regex
+        self.category = FakeType.regex
         self.expression = expression
 
 
@@ -33,5 +33,5 @@ class Custom:
     """
 
     def __init__(self, fake_type):
-        self.category = Fake_type.custom
+        self.category = FakeType.custom
         self.custom_type = fake_type

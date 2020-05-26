@@ -2,7 +2,7 @@
 from xeger import Xeger
 
 from dbjudge.structures.column import Column
-from dbjudge.structures.fake_types import Fake_type
+from dbjudge.structures.fake_types import FakeType
 from dbjudge.connection_manager.manager import Manager
 from dbjudge.utils.metaclasses import Singleton
 from dbjudge.exceptions import InvalidColumnFakeType
@@ -44,11 +44,11 @@ def gen_string(column: Column):
     :return: Random value of the specified custom type.
     :rtype: string
     """
-    if column.fake_type.category == Fake_type.regex:
+    if column.fake_type.category == FakeType.regex:
         regex_data = column.fake_type
         result = _gen_regex(regex_data.expression, column.max_char_len)
 
-    elif column.fake_type.category == Fake_type.custom:
+    elif column.fake_type.category == FakeType.custom:
         custom_data = column.fake_type
         result = _gen_custom_fake(custom_data.custom_type)
     else:
