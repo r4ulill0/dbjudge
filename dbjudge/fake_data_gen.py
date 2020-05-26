@@ -127,21 +127,26 @@ class Faker:
         default_min = decimal.Decimal('-9999999.9999999')
         max_value = max_value if max_value else default_max
         min_value = min_value if min_value else default_min
-        max_tuple = max_value.as_tuple()
-        min_tuple = min_value.as_tuple()
+        formatted_limits = (min_value.as_tuple(), max_value.as_tuple())
 
-        max_exp = max_tuple[2]
-        min_exp = min_tuple[2]
-        bigger_exp = max_exp if abs(max_exp) > abs(min_exp) else min_exp
-        conversion_divisor = decimal.Decimal(10**(bigger_exp*-1))
-        minimum = (min_value * conversion_divisor).to_integral()
-        maximum = (max_value * conversion_divisor).to_integral()
+        minimum, maximum, conversion_divisor = cls._get_decimal_limits(
+            (min_value, max_value), formatted_limits)
 
         big_int = random.randint(minimum, maximum)
         result = decimal.Decimal(big_int)/decimal.Decimal(conversion_divisor)
         if decimal_positions:
             round(result, decimal_positions)
         return result
+
+    @classmethod
+    def _get_decimal_limits(cls, input_limits, formatted_limits):
+        min_exp = formatted_limits[0][2]
+        max_exp = formatted_limits[1][2]
+        bigger_exp = max_exp if abs(max_exp) > abs(min_exp) else min_exp
+        conversion_divisor = decimal.Decimal(10**(bigger_exp*-1))
+        minimum = (input_limits[0] * conversion_divisor).to_integral()
+        maximum = (input_limits[1] * conversion_divisor).to_integral()
+        return (minimum, maximum, conversion_divisor)
 
     @classmethod
     def _gen_datetime(cls, min_date, max_date):
