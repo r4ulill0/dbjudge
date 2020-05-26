@@ -40,6 +40,7 @@ class Column:
     @ctype.setter
     def ctype(self, value):
         if type_compatible.is_valid(value):
+            # pylint: disable=attribute-defined-outside-init
             self._ctype = value
         else:
             raise exceptions.InvalidColumnTypeError(
