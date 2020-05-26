@@ -57,7 +57,8 @@ class Manager(metaclass=Singleton):
         self.main_connection.commit()
 
     def select_database(self, db_name):
-        """Select a database to be used.
+        """Select a database to be used. Current selected database will be
+        overwritten even if the selection is not valid.
 
         :param db_name: Name of an existent database.
         :type db_name: string
@@ -74,8 +75,8 @@ class Manager(metaclass=Singleton):
             if self.selected_db_connection is not None:
                 self.selected_db_connection.close()
             self.selected_db_connection = new_connection
-        finally:
-            return
+        except psycopg2.DatabaseError:
+            self.selected_db_connection = None
 
     def create_database(self, db_name):
         """Creates a new database.
