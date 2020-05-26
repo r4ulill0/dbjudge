@@ -5,6 +5,10 @@ class DbjudgeError(Exception):
     '''Base class for exceptions related to dbjudge module '''
 
 
+class NoDatabaseSelected(Exception):
+    '''Exception raised if trying to use a manager method without having one database selected'''
+
+
 class ColumnReferenceNotFound(DbjudgeError):
     '''Exception raised while trying to resolve a column reference'''
 
