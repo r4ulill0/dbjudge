@@ -165,7 +165,7 @@ class Faker:
             date = datetime.datetime.fromordinal(ordinal_date)
             result = date.replace(hour=hour, minute=minit, second=sec)
 
-            in_range = min_date <= date and date <= max_date
+            in_range = min_date <= date <= max_date
 
         return result
 
