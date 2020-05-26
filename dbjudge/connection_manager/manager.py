@@ -211,7 +211,7 @@ class Manager(metaclass=Singleton):
                 sql.SQL(',').join(sql.Placeholder() * len(values))
             )
             db_cursor.execute(insert_query, values)
-        except Exception:
+        except psycopg2.DatabaseError:
             db_cursor.execute('ROLLBACK TO SAVEPOINT insert_save')
             success = False
         finally:
