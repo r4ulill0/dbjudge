@@ -2,7 +2,7 @@
 from dbjudge.structures.column import Column
 
 
-class Table:
+class Table:  # pylint: disable=too-few-public-methods
     """Database table representation"""
 
     def __init__(self, name, primary_key):

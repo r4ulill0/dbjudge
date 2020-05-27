@@ -8,7 +8,7 @@ from dbjudge.utils.metaclasses import Singleton
 from dbjudge.exceptions import InvalidColumnFakeType
 
 
-class CustomCache(metaclass=Singleton):
+class CustomCache(metaclass=Singleton):  # pylint: disable=too-few-public-methods
     """Cache object to reduce the amount of times
     preloaded data needs to be gathered.
     """

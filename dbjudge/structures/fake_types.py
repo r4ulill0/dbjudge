@@ -3,7 +3,7 @@
 from enum import Enum
 
 
-class FakeType(Enum):
+class FakeType(Enum):  # pylint: disable=too-few-public-methods
     """Fake type category.
     """
     default = 0
@@ -11,7 +11,7 @@ class FakeType(Enum):
     custom = 2
 
 
-class Default:
+class Default:  # pylint: disable=too-few-public-methods
     """Default data type.
     """
 
@@ -19,7 +19,7 @@ class Default:
         self.category = FakeType.default
 
 
-class Regex:
+class Regex:  # pylint: disable=too-few-public-methods
     """Regular expression based data type.
     """
 
@@ -28,7 +28,7 @@ class Regex:
         self.expression = expression
 
 
-class Custom:
+class Custom:  # pylint: disable=too-few-public-methods
     """Custom preloaded data type.
     """
 

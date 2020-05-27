@@ -10,7 +10,7 @@ from dbjudge import exceptions
 from dbjudge import type_compatible
 
 
-class Faker:
+class Faker:  # pylint: disable=too-few-public-methods
     """A Faker object can generate random database data for a specific context.
     """
 
