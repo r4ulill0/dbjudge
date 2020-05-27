@@ -9,6 +9,7 @@ class Column:
     """
 
     def __init__(self, name, ctype, nullable=False, unique=False):
+        # pylint: too-many-instance-attributes
         self.name = name
         self.ctype = ctype
         self.constraint = ""
