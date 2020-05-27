@@ -1,13 +1,13 @@
-'''Tools for sql parsing purposes'''
+"""Tools for sql parsing purposes"""
 import sqlparse
 
 
 def get_used_tables(query):
-    '''
+    """
     Returns the tables used in the query after the "FROM" keyword.
 
     :param query: valid SQL query
-    '''
+    """
 
     used_tables = []
     parsed_query = sqlparse.parse(query)
@@ -20,13 +20,17 @@ def get_used_tables(query):
 
         elif from_clause_found and isinstance(token, sqlparse.sql.IdentifierList):
             tables = token
+            _parse_identifier_list_into_used_tables(tables, used_tables)
 
-            for table in tables:
-                if isinstance(table, sqlparse.sql.Identifier):
-                    for definition_element in table:
-                        if definition_element.match(sqlparse.tokens.Name, None):
-                            used_tables.append(definition_element.normalized)
         elif from_clause_found and isinstance(token, sqlparse.sql.Identifier):
             used_tables.append(token.normalized)
 
     return set(used_tables)
+
+
+def _parse_identifier_list_into_used_tables(tables, used_tables):
+    for table in tables:
+        if isinstance(table, sqlparse.sql.Identifier):
+            for definition_element in table:
+                if definition_element.match(sqlparse.tokens.Name, None):
+                    used_tables.append(definition_element.normalized)
