@@ -4,12 +4,11 @@ from dbjudge import exceptions
 from .fake_types import Default
 
 
-class Column:
+class Column:  # pylint: disable=too-many-instance-attributes
     """Database column representation
     """
 
     def __init__(self, name, ctype, nullable=False, unique=False):
-        # pylint: too-many-instance-attributes
         self.name = name
         self.ctype = ctype
         self.constraint = ""
