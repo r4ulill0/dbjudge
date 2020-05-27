@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='dbjudge',
-    version='0.5.0a',
+    version='1.0.0a',
     description='A SQL judge for postgresql',
     author='Raúl Medina',
     author_email='raulmgcontact@gmail.com',
@@ -10,5 +10,6 @@ setup(
     install_requires=[
         'psycopg2',
         'xeger',
+        'sqlparse',
     ],
 )
