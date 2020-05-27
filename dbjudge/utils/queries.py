@@ -82,20 +82,20 @@ UNIQUE_KEY_QUERY = '''
         and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s;
     '''
 INSTALLATION_QUERY = '''
-    CREATE TABLE dbjudge_database(
+    CREATE TABLE IF NOT EXISTS dbjudge_database(
         name varchar(20) NOT NULL,
         PRIMARY KEY (name)
     );
-    CREATE TABLE dbjudge_fake_data(
+    CREATE TABLE IF NOT EXISTS dbjudge_fake_data(
         data text,
         fake_type varchar(20),
         PRIMARY KEY (data, fake_type)
     );
-    CREATE TABLE dbjudge_keyword(
+    CREATE TABLE IF NOT EXISTS dbjudge_keyword(
         name text,
         PRIMARY KEY (name)
     );
-    CREATE TABLE dbjudge_question(
+    CREATE TABLE IF NOT EXISTS dbjudge_question(
         id SERIAL NOT NULL,
         question text,
         sql_query text,
@@ -103,7 +103,7 @@ INSTALLATION_QUERY = '''
         PRIMARY KEY (id),
         FOREIGN KEY (database) REFERENCES dbjudge_database (name)
     );
-    CREATE TABLE dbjudge_keyword_selection(
+    CREATE TABLE IF NOT EXISTS dbjudge_keyword_selection(
         question SERIAL,
         keyword text,
         expected boolean,
