@@ -66,35 +66,35 @@ class Faker:  # pylint: disable=too-few-public-methods
                 fake = self._gen_string(column.max_char_len)
             return fake
 
-        elif type_compatible.is_integer(column.ctype):
+        if type_compatible.is_integer(column.ctype):
             bytes_limit = type_compatible.bytes_limit(column.ctype)
             fake = self._gen_integer(
                 bytes_limit, column.min_value, column.max_value)
             formatted_fake = str(fake)
             return formatted_fake
 
-        elif type_compatible.is_boolean(column.ctype):
+        if type_compatible.is_boolean(column.ctype):
             fake = self._gen_boolean()
             formatted_fake = str(fake)
             return formatted_fake
 
-        elif type_compatible.is_float(column.ctype):
+        if type_compatible.is_float(column.ctype):
             fake = self._gen_decimal(
                 column.max_char_len, column.min_value, column.max_value)
             formatted_fake = str(fake)
             return formatted_fake
 
-        elif type_compatible.is_date(column.ctype):
+        if type_compatible.is_date(column.ctype):
             fake = self._gen_datetime(column.min_value, column.max_value)
             formatted_fake = self._wrap_with_quote_marks(fake)
             return formatted_fake
 
-        elif type_compatible.is_interval(column.ctype):
+        if type_compatible.is_interval(column.ctype):
             fake = self._gen_interval()
             formatted_fake = self._format_interval(fake)
             return formatted_fake
-        else:
-            raise exceptions.InvalidColumnTypeError()
+
+        raise exceptions.InvalidColumnTypeError()
 
     @classmethod
     def _gen_string(cls, max_len):
