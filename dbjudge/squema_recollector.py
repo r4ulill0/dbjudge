@@ -1,8 +1,8 @@
-'''Tools to create a Context from a created database.
+"""Tools to create a Context from a created database.
 
 This module analyze the tables and columns from a database
 and stores a basic structure of the database model in a Context object.
-'''
+"""
 from psycopg2 import sql
 
 from dbjudge.connection_manager.manager import Manager
@@ -12,6 +12,8 @@ from dbjudge.structures.column import Column
 from dbjudge.structures.foreign_key import ForeignKey
 from dbjudge.structures.reference import Reference
 from dbjudge.utils import queries
+
+COLUMN_NULLABLE_POSITIVE_RESPONSE = 'yes'
 
 
 def create_context(conn):
@@ -62,7 +64,7 @@ def _load_table_columns(table, database_cursor):
     for column_and_type in columns_types:
         column_name = column_and_type[0]
         column_type = column_and_type[1]
-        column_nullable = column_and_type[2] is 'yes'
+        column_nullable = column_and_type[2] is COLUMN_NULLABLE_POSITIVE_RESPONSE
         column_char_len = column_and_type[3]
         column_unique = column_name in uniques
         new_column = Column(column_name, column_type,
