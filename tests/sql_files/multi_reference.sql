@@ -1,0 +1,29 @@
+CREATE TABLE A(
+    num INTEGER PRIMARY KEY
+);
+
+CREATE TABLE B(
+    tipo CHARACTER PRIMARY KEY
+);
+
+CREATE table C(
+    a INTEGER,
+    b CHARACTER,
+    FOREIGN KEY (a) REFERENCES A(num) MATCH SIMPLE,
+    FOREIGN key (b) references B(tipo) MATCH SIMPLE,
+    PRIMARY KEY (a,b)
+);
+
+CREATE table D(
+    id FLOAT,
+    a integer,
+    b CHARACTER,
+    FOREIGN KEY (a) REFERENCES A(num) MATCH SIMPLE,
+    FOREIGN key (b) references B(tipo) MATCH SIMPLE,
+    FOREIGN key (a,b) REFERENCES C(a,b) MATCH SIMPLE
+);
+
+DROP TABLE D;
+DROP TABLE C;
+DROP TABLE B;
+DROP TABLE A;
