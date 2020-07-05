@@ -74,12 +74,14 @@ def slice_sql(query):
     return output_queries
 
 
-def map_slices(slices):
+def map_slices(slices, context):
     """Relate SQL query slices to its corresponding table.
     Only "WHERE" restrictions tables are mapped.
 
     :param slices: Multiple SQL queries
     :type slices: Iterable of SQL strings
+    :param context: Context of the target database
+    :type context: Context
     :return: Dictionary relating tables with queries that use them
     :rtype: dict
     """
@@ -105,6 +107,8 @@ def map_slices(slices):
             if isinstance(token, sqlparse.sql.Comparison):
                 names = _get_comparison_names(token)
                 table = _find_table(names, table_aliases)
+                if table is None:
+                    table = _deduce_table(names, context)
                 if table not in mapping.keys():
                     mapping[table] = []
                 mapping[table].append(query)
@@ -142,4 +146,14 @@ def _find_table(names, table_aliases):
         if name in table_aliases.keys():
             result = table_aliases[name]
             break
+    return result
+
+
+def _deduce_table(names, context):
+    for name in names:
+        for table in context.tables:
+            for column, _ in table.columns.items():
+                if column == name:
+                    result = table.name
+
     return result

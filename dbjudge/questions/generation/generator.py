@@ -30,7 +30,7 @@ from dbjudge import squema_recollector
 TIMEOUT_PER_QUERY = 20
 
 
-def create_question(database, query, question):
+def create_question(database, query, question, context):
     """Creates a question and stores it in db_judge database.
     It also tries to generate enough different data to make the judge more reliable.
 
@@ -39,6 +39,8 @@ def create_question(database, query, question):
     :type query: string
     :param question: Question about database data.
     :type question: string
+    :param context: Context of the target database
+    :type context: Context
     """
     Manager.singleton_instance.select_database(database)
     connection = Manager.singleton_instance.selected_db_connection
@@ -48,7 +50,7 @@ def create_question(database, query, question):
     creation_cursor = connection.cursor()
 
     slices = slicer.slice_sql(query)
-    mapped_slices = slicer.map_slices(slices)
+    mapped_slices = slicer.map_slices(slices, context)
 
     for table_name, relevant_slices in mapped_slices.items():
         table = context.get_table_by_name(table_name)

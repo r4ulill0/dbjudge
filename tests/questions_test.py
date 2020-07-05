@@ -58,7 +58,7 @@ def test_slice_querie(test_query, query_slices):
 
 def test_slice_mapping(test_query):
     slices = slicer.slice_sql(test_query)
-    mapped_slices = slicer.map_slices(slices)
+    mapped_slices = slicer.map_slices(slices, None)
     expected_result = {
         'person': ["SELECT * FROM person p WHERE p.age > 20 ;",
                    "SELECT * FROM person p WHERE p.adress<30000;"]
@@ -121,7 +121,7 @@ def test_create_question(test_query, database_manager, make_database):
         open('tests/sql_files/questions_tests_database.sql').read())
     alternative_cursor.connection.commit()
     generator.TIMEOUT_PER_QUERY = 1
-    generator.create_question(database, test_query, question)
+    generator.create_question(database, test_query, question, None)
 
     assert_1_query = '''
         SELECT question, sql_query
