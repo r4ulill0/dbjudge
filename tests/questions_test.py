@@ -121,7 +121,9 @@ def test_create_question(test_query, database_manager, make_database):
         open('tests/sql_files/questions_tests_database.sql').read())
     alternative_cursor.connection.commit()
     generator.TIMEOUT_PER_QUERY = 1
-    generator.create_question(database, test_query, question, None)
+    context = squema_recollector.create_context(
+        database_manager.selected_db_connection)
+    generator.create_question(database, test_query, question, context)
 
     assert_1_query = '''
         SELECT question, sql_query

@@ -44,7 +44,6 @@ def create_question(database, query, question, context):
     """
     Manager.singleton_instance.select_database(database)
     connection = Manager.singleton_instance.selected_db_connection
-    context = squema_recollector.create_context(connection)
     squema_recollector.update_context_instances(context)
 
     creation_cursor = connection.cursor()
