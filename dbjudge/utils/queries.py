@@ -97,7 +97,7 @@ PRIMARY_KEY_QUERY = '''
     '''
 
 UNIQUE_KEY_QUERY = '''
-    select distinct KCU.column_name
+    select distinct on (KCU.constraint_name) KCU.column_name
     from information_schema.key_column_usage KCU, information_schema.table_constraints TC
     where (TC.constraint_type='UNIQUE' or TC.constraint_type='PRIMARY KEY')
         and TC.constraint_name=KCU.constraint_name and KCU.table_name=%s;
