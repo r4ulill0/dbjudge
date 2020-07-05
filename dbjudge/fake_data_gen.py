@@ -262,11 +262,18 @@ class Faker:  # pylint: disable=too-few-public-methods
             return is_value_filled
 
         for instance in table.row_instances:
+            has_coincidenes = True
+            check = []
             for c_name in pk_column_names:
-                is_correct_pk = not values[c_name] == instance[c_name]
+                coincidence = values[c_name] == instance[c_name]
+                check.append(coincidence)
 
-                if not is_correct_pk:
-                    return is_correct_pk
+            for partial_check in check:
+                has_coincidenes = has_coincidenes and partial_check
+            is_correct_pk = not has_coincidenes
+
+            if not is_correct_pk:
+                return is_correct_pk
 
         return is_correct_pk
 
