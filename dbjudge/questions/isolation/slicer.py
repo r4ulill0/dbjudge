@@ -106,6 +106,9 @@ def map_slices(slices, context):
                 where_clause = token
                 parsing_from = False
 
+        if not where_clause:
+            return {}
+
         for token in where_clause.tokens:
             if isinstance(token, sqlparse.sql.Comparison):
                 names = _get_comparison_names(token)
