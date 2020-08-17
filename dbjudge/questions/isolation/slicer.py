@@ -47,6 +47,9 @@ def slice_sql(query):
         if isinstance(element, sqlparse.sql.Where):
             where_clause = element
 
+    if not where_clause:
+        return [query, ]
+
     and_positions = []
     for pos, token in enumerate(where_clause.tokens):
         if token.is_keyword and token.normalized == 'AND':
