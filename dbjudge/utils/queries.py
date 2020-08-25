@@ -200,3 +200,7 @@ GET_EXPECTED_KEYWORDS = '''
 REGISTER_KEYWORD_SELECTION = '''
     INSERT INTO dbjudge_keyword_selection (question, keyword, expected) VALUES (%s, %s, %s);
 '''
+
+GET_TABLES_TUPLES_COUNT = '''
+    SELECT n_live_tup FROM pg_stat_user_tables ORDER BY n_live_tup DESC;
+'''

@@ -346,3 +346,17 @@ class Manager(metaclass=Singleton):
             formatted_result.append(result_row[0])
 
         return formatted_result
+
+    def get_total_data_count(self):
+        """Returns the amount of tuples in the selected database
+        :return: Number of tuples in the selected database
+        :rtype: int
+        """
+        count = 0
+        reader = self.selected_db_connection.cursor()
+        reader.execute(queries.GET_TABLES_TUPLES_COUNT)
+        results = reader.fetchall()
+        for result in results:
+            count += int(result[0])
+
+        return count

@@ -216,3 +216,42 @@ def test_get_tables(database_manager, make_database):
     assert table2 in result
     assert table3 in result
     assert len(result) == 3
+
+
+def test_get_total_data_count(database_manager, make_database):
+    db_name = 'test_data_count'
+    make_database(db_name)
+    database_manager.select_database(db_name)
+    table1 = 'test_get_data_count_1'
+    table2 = 'test_get_data_count_2'
+    table3 = 'test_get_data_count_3'
+    sql1 = 'CREATE TABLE {} (test integer);'.format(table1)
+    sql2 = 'CREATE TABLE {} (test integer);'.format(table2)
+    sql3 = 'CREATE TABLE {} (test integer);'.format(table3)
+    data1 = 'INSERT INTO {} (test) VALUES (1);'.format(table1)
+    data2 = 'INSERT INTO {} (test) VALUES (1);'.format(table2)
+    data3 = 'INSERT INTO {} (test) VALUES (2);'.format(table2)
+    data4 = 'INSERT INTO {} (test) VALUES (1);'.format(table3)
+    data5 = 'INSERT INTO {} (test) VALUES (2);'.format(table3)
+    data6 = 'INSERT INTO {} (test) VALUES (3);'.format(table3)
+    database_manager.execute_sql(sql1)
+    database_manager.execute_sql(sql2)
+    database_manager.execute_sql(sql3)
+    database_manager.execute_sql(data1)
+    database_manager.execute_sql(data2)
+    database_manager.execute_sql(data3)
+    database_manager.execute_sql(data4)
+    database_manager.execute_sql(data5)
+    database_manager.execute_sql(data6)
+    database_manager.selected_db_connection.commit()
+    sql1 = 'ANALYZE {};'.format(table1)
+    sql2 = 'ANALYZE {};'.format(table2)
+    sql3 = 'ANALYZE {};'.format(table3)
+    database_manager.execute_sql(sql1)
+    database_manager.execute_sql(sql2)
+    database_manager.execute_sql(sql3)
+    database_manager.selected_db_connection.commit()
+
+    result = database_manager.get_total_data_count()
+
+    assert result == 6
