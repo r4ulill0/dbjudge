@@ -193,3 +193,26 @@ def test_get_questions(database_manager, make_database):
     assert expected_result[0] in result2
     assert expected_result[1] in result2
     assert expected_result[2] in result2
+
+
+def test_get_tables(database_manager, make_database):
+    db_name = 'test_get_tables'
+    make_database(db_name)
+    database_manager.select_database(db_name)
+    table1 = 'test_get_tables_1'
+    table2 = 'test_get_tables_2'
+    table3 = 'test_get_tables_3'
+    sql1 = 'CREATE TABLE {} (test integer);'.format(table1)
+    sql2 = 'CREATE TABLE {} (test integer);'.format(table2)
+    sql3 = 'CREATE TABLE {} (test integer);'.format(table3)
+    database_manager.execute_sql(sql1)
+    database_manager.execute_sql(sql2)
+    database_manager.execute_sql(sql3)
+    database_manager.selected_db_connection.commit()
+
+    result = database_manager.get_tables()
+
+    assert table1 in result
+    assert table2 in result
+    assert table3 in result
+    assert len(result) == 3

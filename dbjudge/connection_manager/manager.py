@@ -330,3 +330,19 @@ class Manager(metaclass=Singleton):
         reader.execute(queries.SHOW_CORRECT_ANSWER_TO_QUESTION, (question,))
         result = reader.fetchall()
         return result
+
+    def get_tables(self):
+        """Returns the tables of the selected database
+        :return: Tables of the selected database
+        :rtype: list
+        """
+        formatted_result = []
+
+        reader = self.selected_db_connection.cursor()
+        reader.execute(queries.TABLES_QUERY)
+        results = reader.fetchall()
+
+        for result_row in results:
+            formatted_result.append(result_row[0])
+
+        return formatted_result
